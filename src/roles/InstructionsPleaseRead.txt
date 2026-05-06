@@ -1,0 +1,11 @@
+Please do your changes in your own folder , 
+those who are having the frontend part in the same folder ,
+ for example in citizen page , there will so many things 
+it will be done by areef also , aesha also and aravind also , 
+
+so you can make your own file and work own that ,
+
+And Next thing is of routes , when you will check your project ,
+ so dont change in the main App.jsx , just make a new file in which there 
+is routes and then import it to the App.jsx as it will be easy while merging . 
+and inside the folder 
