@@ -18,6 +18,12 @@ import AuditCreate from './roles/GovernmentAuditor/AuditCreate';
 import DisplayAllAudits from './roles/GovernmentAuditor/DisplayAllAudits';
 import DisplayOneAudit from './roles/GovernmentAuditor/DisplayOneAudit';
 import AuditEdit from './roles/GovernmentAuditor/AuditEdit';
+import ReportsDashboard from './roles/reportsAnalytics/pages/ReportsDashboard';
+import ReportDetails from './roles/reportsAnalytics/pages/ReportDetails';
+import ScopeReports from './roles/reportsAnalytics/pages/ScopeReports';
+import CreateReport from './roles/reportsAnalytics/pages/CreateReport';
+import ReportsList from './roles/reportsAnalytics/components/report/ReportsList';
+import DisplayAllReports from './roles/reportsAnalytics/pages/DisplayAllReports';
 
 function App() {
   return (
@@ -36,6 +42,12 @@ function App() {
           <Route path="/audit/list" element={<DisplayAllAudits />} />
           <Route path="/audit/:id" element={<DisplayOneAudit />} />
           <Route path="/audit/:id/edit" element={<AuditEdit />} />
+          
+          <Route path="/reports" element={<DisplayAllReports />} />
+          <Route path="/reports/create" element={<CreateReport />} />
+          <Route path="/reports/analytics" element={<ReportsDashboard />} />
+          <Route path="/reports/scope/:scope" element={<ScopeReports />} />
+          <Route path="/reports/:id" element={<ReportDetails />} />
         </Routes>
       </Layout>
       <ToastContainer

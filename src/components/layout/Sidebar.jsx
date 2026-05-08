@@ -19,6 +19,11 @@ export const Sidebar = ({ onToggle, initialState = true }) => {
     { id: 21, label: 'All Audits', to: '/audit/list', icon: Zap },
     { id: 22, label: 'Create Audit', to: '/audit/create', icon: Plus },
 
+    // Report Auditor module
+    { id: 30, label: 'View Reports', to: '/reports', icon: BarChart2 },
+    { id: 31, label: 'Create Report', to: '/reports/create', icon: Plus },
+    { id: 32, label: 'View Analytics', to: '/reports/analytics', icon: BarChart2 },
+
   ];
   const toggleSidebar = () => {
     const newState = !isOpen;

@@ -13,7 +13,7 @@ const AuditService = {
   getById: (id) => api.get(`/audit/${id}`),
   create: (data) => api.post('/audit', data),
   update: (id, data) => api.patch(`/audit/${id}`, data),
-  delete: (id) => api.delete(`/audit/${id}`),
+  // delete: (id) => api.delete(`/audit/${id}`), // deleted/disabled to prevent accidental removals
   getSummary: () => api.get('/audit/summary'),
   findByOfficerId: (officerId) => api.get(`/audit/officer/${officerId}`),
 };
