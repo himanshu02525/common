@@ -90,6 +90,19 @@ h1 {
   font-size: 2.5rem;
 }
 
+
+  /* Global responsive tweaks */
+  @media (max-width: 768px) {
+    .form-control { padding: 0.5rem 0.75rem; font-size: 0.95rem; }
+    .card-body { padding: 1rem; }
+    .table td, .table th { padding: 0.5rem; }
+  }
+
+  @media (max-width: 420px) {
+    .btn { padding: 0.5rem 0.75rem; font-size: 0.9rem; }
+    .form-control { padding: 0.45rem 0.6rem; font-size: 0.92rem; }
+    .table { font-size: 0.88rem; }
+  }
 h2 {
   font-size: 2rem;
 }

@@ -1,0 +1,88 @@
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import ComplianceService from './ComplianceService';
+import { toast } from 'react-toastify';
+
+const ComplianceEdit = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [record, setRecord] = useState(null);
+  const [form, setForm] = useState({ result: 'PENDING', notes: '' });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (id) fetchRecord(id);
+  }, [id]);
+
+  const fetchRecord = async (rid) => {
+    setLoading(true);
+    try {
+      const res = await ComplianceService.getById(rid);
+      setRecord(res.data);
+      setForm({ result: res.data.result || 'PENDING', notes: res.data.notes || '' });
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.response?.data?.message || 'Failed to load record');
+    } finally { setLoading(false); }
+  };
+
+  const validate = () => {
+    const err = {};
+    if (!form.result || String(form.result).trim() === '') err.result = 'Result is required';
+    if (form.notes && form.notes.length > 1000) err.notes = 'Notes max 1000 chars';
+    setErrors(err);
+    return Object.keys(err).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+    try {
+      const res = await ComplianceService.update(id, { result: form.result, notes: form.notes });
+      const msg = res?.data?.message || (res?.data && res.data.complianceId ? `Updated: ${res.data.complianceId}` : 'Compliance updated');
+      toast.success(typeof msg === 'string' ? msg : JSON.stringify(msg));
+      navigate('/compliance/list');
+    } catch (err) {
+      console.error(err);
+      const msg = err?.response?.data?.message || 'Update failed';
+      toast.error(typeof msg === 'string' ? msg : 'Update failed');
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (!record) return <div>No record</div>;
+
+  return (
+    <div className="container py-3">
+      <div className="card">
+        <div className="card-body">
+          <h5>Edit Compliance #{record.complianceId}</h5>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label className="form-label">Result</label>
+              <select className="form-select" value={form.result} onChange={(e) => setForm({ ...form, result: e.target.value })}>
+                <option value="PASS">PASS</option>
+                <option value="FAIL">FAIL</option>
+                <option value="IN_PROGRESS">IN_PROGRESS</option>
+                <option value="PENDING">PENDING</option>
+              </select>
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Notes</label>
+              <textarea maxLength={1000} className="form-control" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+              <div className="text-muted small mt-1">{String(form.notes || '').length}/1000</div>
+              {errors.notes && <div className="text-danger small mt-1">{errors.notes}</div>}
+            </div>
+            <div className="d-flex justify-content-end">
+              <button type="button" className="btn btn-secondary me-2" onClick={() => navigate(-1)}>Cancel</button>
+              <button type="submit" className="btn btn-primary">Update</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ComplianceEdit;

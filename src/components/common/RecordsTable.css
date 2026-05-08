@@ -1,0 +1,31 @@
+.records-table { margin-top: 8px; max-height: 60vh; }
+.records-table table thead th { position: sticky; top: 0; background: #fff; z-index: 2; color: black;font-weight: 700;}
+.records-table .action-td { white-space: nowrap; }
+
+/* default truncate helper for long text cells */
+.truncate-cell {
+  max-width: 280px;
+  vertical-align: top;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 768px) {
+  .truncate-cell { max-width: 160px; -webkit-line-clamp: 2; }
+  .records-table table td, .records-table table th { padding: 0.5rem; }
+  .records-table { max-height: 50vh; }
+}
+
+/* For very small screens, reduce lines and allow horizontal scroll */
+@media (max-width: 420px) {
+  .truncate-cell { max-width: 120px; -webkit-line-clamp: 1; }
+  .records-table table { font-size: 0.9rem; }
+}
+
+.wrap-text { white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; max-height: 18rem; overflow: auto; padding: 6px 8px; background: #fafafa; border-radius: 4px; border: 1px solid rgba(0,0,0,0.04); }
