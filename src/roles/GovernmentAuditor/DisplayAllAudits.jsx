@@ -24,11 +24,11 @@ const DisplayAllAudits = () => {
             const res = await AuditService.getAll();
             setLogs(res.data || []);
         } catch (err) {
-            const msg = err?.response?.data?.message || 'Delete failed';
-            toast.error(typeof msg === 'string' ? msg : 'Delete failed');
+            toast.error(typeof msg === 'string' ? msg : 'Failed to load audits');
         } finally { setLoading(false); }
     };
 
+    /*
     const handleDelete = async (id) => {
         if (!window.confirm('Delete this audit?')) return;
         try {
@@ -37,10 +37,11 @@ const DisplayAllAudits = () => {
             toast.success(typeof msg === 'string' ? msg : JSON.stringify(msg));
             fetchLogs();
         } catch (err) {
-            const msg = err?.response?.data?.message || 'Delete failed';
-            toast.error(typeof msg === 'string' ? msg : 'Delete failed');
+            const msg = err?.response?.data?.message || 'Failed to delete audit';
+            toast.error(typeof msg === 'string' ? msg : 'Failed to delete audit');
         }
     };
+    */
 
     const getValueByKey = (obj, key) => {
         if (!key) return undefined;

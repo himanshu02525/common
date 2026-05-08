@@ -23,6 +23,7 @@ const DisplayAllCompliance = () => {
       const res = await ComplianceService.getAll();
       setRecords(res.data || []);
     } catch (err) {
+     const msg = err?.response?.data?.message || 'Failed to load compliance records';
      toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
     } finally {
       setLoading(false);
@@ -37,8 +38,8 @@ const DisplayAllCompliance = () => {
       toast.success(typeof msg === 'string' ? msg : JSON.stringify(msg));
       fetchRecords();
     } catch (err) {
-      const msg = err?.response?.data?.message || 'Delete failed';
-      toast.error(typeof msg === 'string' ? msg : 'Delete failed');
+      const msg = err?.response?.data?.message || 'Failed to delete compliance record';
+      toast.error(typeof msg === 'string' ? msg : 'Failed to delete compliance record');
     }
   };
 
