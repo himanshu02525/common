@@ -1,15 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ComplianceService from './ComplianceService';
 import './DisplayOneRecord.css';
-import EmptyState from '../../../components/common/EmptyState';
-import TaxDetails from './TaxDetails';
-import SubsidyDetails from './SubsidyDetails';
-import FundingProgramDetails from './FundingProgramDetails';
-import CitizenBusinessDetails from './CitizenBusinessDetails';
-import DetailCard from '../../../components/common/DetailCard';
-import StatusBadge from '../../../components/common/StatusBadge';
-
+import {StatusBadge,DetailCard,CitizenBusinessDetails,TaxDetails,SubsidyDetails,FundingProgramDetails,EmptyState,ComplianceService} from '../../../core/registry';
 const DisplayOneRecord = ({ record: propRecord }) => {
   const { id } = useParams();
   const navigate = useNavigate();

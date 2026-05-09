@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { Modal } from '../../../components/common/Modal';
-import ComplianceService from './ComplianceService';
-import StatusBadge from '../../../components/common/StatusBadge';
-import RecordsTable from '../../../components/common/RecordsTable';
-
+import {RecordsTable,StatusBadge,ComplianceService} from '../../../core/registry';
   // use StatusBadge component for result display
 
 const ComplianceTable = ({ records = [], loading = false, onRefresh }) => {

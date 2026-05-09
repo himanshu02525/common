@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ComplianceService from './ComplianceService';
+import {ComplianceService} from '../../../core/registry';
 
 const ComplianceSummary = () => {
   const [summary, setSummary] = useState({});

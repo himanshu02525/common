@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import AuditService from './AuditService';
 import { toast } from 'react-toastify';
+import { AuditService } from '../../core/registry';
 
 const AuditEdit = () => {
   const { id } = useParams();
@@ -19,7 +19,18 @@ const AuditEdit = () => {
       const res = await AuditService.getById(aid);
       setAudit(res.data);
       setForm({ status: res.data.status || 'PENDING', findings: res.data.findings || '' });
-    } catch (err) { console.error(err); toast.error(err?.response?.data?.message || 'Failed to load audit'); } finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+      if (err?.response?.status === 404) {
+        setAudit(null);
+        setErrors((e) => ({ ...e, fetch: err.response.data?.message || 'Audit not found' }));
+      } else if (err?.request && !err?.response) {
+        setAudit(null);
+        setErrors((e) => ({ ...e, fetch: 'Network error: Unable to reach server' }));
+      } else {
+        toast.error(err?.response?.data?.message || 'Failed to load audit');
+      }
+    } finally { setLoading(false); }
   };
 
   const validate = () => {

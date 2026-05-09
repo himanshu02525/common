@@ -1,15 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import AuditService from './AuditService';
 import { useNavigate } from 'react-router-dom';
 import './DisplayAllAudits.css';
-import RecordsTable from '../../components/common/RecordsTable';
-import StatusBadge from '../../components/common/StatusBadge';
-import SearchBar from '../../components/common/SearchBar';
-import { toast } from 'react-toastify';
+import { EmptyState, Loader,SearchBar,StatusBadge,RecordsTable,AuditService } from '../../core/registry';
 
 const DisplayAllAudits = () => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loadError, setLoadError] = useState(null);
     const [selected, setSelected] = useState(null);
     const [filterText, setFilterText] = useState('');
     const navigate = useNavigate();
@@ -22,9 +19,22 @@ const DisplayAllAudits = () => {
         setLoading(true);
         try {
             const res = await AuditService.getAll();
-            setLogs(res.data || []);
+            const data = res?.data ?? [];
+            setLogs(data);
+            if (!Array.isArray(data) || data.length === 0) {
+                setLoadError('No audits found');
+            } else {
+                setLoadError(null);
+            }
         } catch (err) {
-            toast.error(typeof msg === 'string' ? msg : 'Failed to load audits');
+            if (err?.response?.status === 404) {
+                setLoadError(err.response.data?.message || 'Not found');
+            } else if (err?.request && !err?.response) {
+                setLoadError('Network error: Unable to reach server');
+            } else {
+                const msg = err?.response?.data?.message || 'Failed to load audits';
+                toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
+            }
         } finally { setLoading(false); }
     };
 
@@ -67,7 +77,11 @@ const DisplayAllAudits = () => {
                 placeholder="Search audit records..."
             />
 
-            {loading ? <div>Loading...</div> : (
+            {loading && <Loader message="Loading audits..." />}
+            {!loading && loadError && (
+                <EmptyState title="Failed to load audits" message={String(loadError)} />
+            )}
+            {!loading && !loadError && (
                 <RecordsTable
                     data={displayedRecords}
                     columns={[

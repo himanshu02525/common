@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import AuditService from './AuditService';
 import './DisplayOneAudit.css';
-import EmptyState from '../../components/common/EmptyState';
-import DetailCard from '../../components/common/DetailCard';
-import StatusBadge from '../../components/common/StatusBadge';
-
+import { StatusBadge, DetailCard,EmptyState,AuditService } from '../../core/registry';
 const DisplayOneAudit = ({ audit: propAudit }) => {
   const { id } = useParams();
   const navigate = useNavigate();

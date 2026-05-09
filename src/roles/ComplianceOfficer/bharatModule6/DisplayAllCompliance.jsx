@@ -1,15 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import ComplianceService from './ComplianceService';
+import {ComplianceService} from '../../../core/registry';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './DisplayAllCompliance.css';
-import RecordsTable from '../../../components/common/RecordsTable';
-import StatusBadge from '../../../components/common/StatusBadge';
-import SearchBar from '../../../components/common/SearchBar';
-
+import { SearchBar, StatusBadge, RecordsTable, EmptyState, Loader } from '../../../core/registry';
 const DisplayAllCompliance = () => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(null);
+  const [emptyData, setEmptyData] = useState(false);
   const [filterText, setFilterText] = useState('');
   const navigate = useNavigate();
 
@@ -19,12 +18,25 @@ const DisplayAllCompliance = () => {
 
   const fetchRecords = async () => {
     setLoading(true);
+    setLoadError(null);
+    setEmptyData(false);
     try {
       const res = await ComplianceService.getAll();
-      setRecords(res.data || []);
+      const data = res?.data ?? [];
+      setRecords(data);
+      if (!Array.isArray(data) || data.length === 0) {
+        setEmptyData(true);
+      }
     } catch (err) {
-     const msg = err?.response?.data?.message || 'Failed to load compliance records';
-     toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
+      // Handle 404, network errors and empty datasets by showing EmptyState instead of toast
+      if (err?.response?.status === 404) {
+        setLoadError(err.response.data?.message || 'Not found');
+      } else if (err?.request && !err?.response) {
+        setLoadError('Network error: Unable to reach server');
+      } else {
+        const msg = err?.response?.data?.message || 'Failed to load compliance records';
+        toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
+      }
     } finally {
       setLoading(false);
     }
@@ -70,7 +82,14 @@ const DisplayAllCompliance = () => {
         placeholder="Search compliance records..."
       />
 
-      {loading ? <div>Loading...</div> : (
+      {loading && <Loader message="Loading compliance records..." />}
+      {!loading && loadError && (
+        <EmptyState title="Failed to load records" message={String(loadError)} />
+      )}
+      {!loading && !loadError && emptyData && (
+        <EmptyState title="No records" message="No compliance records were returned by the server." />
+      )}
+      {!loading && !loadError && !emptyData && (
         <RecordsTable
           data={displayedRecords}
           columns={[
