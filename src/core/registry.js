@@ -52,7 +52,6 @@ export { default as PieChart } from '../roles/reportsAnalytics/components/analyt
 export { default as ProgramStackedBar } from '../roles/reportsAnalytics/components/analytics/charts/ProgramStackedBar';
 export { default as StackedHorizontalBar } from '../roles/reportsAnalytics/components/analytics/charts/StackedHorizontalBar';
 export { default as StatusCard } from '../roles/reportsAnalytics/components/analytics/charts/StatusCard';
-export { default as StatusCard22 } from '../roles/reportsAnalytics/components/analytics/charts/StatusCard22';
 export { default as SubsidyPie } from '../roles/reportsAnalytics/components/analytics/charts/SubsidyPie';
 export { default as TaxDonutChart } from '../roles/reportsAnalytics/components/analytics/charts/TaxDonutChart';
 export { default as DisplayAllReports } from '../roles/reportsAnalytics/components/report/DisplayAllReports';

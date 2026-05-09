@@ -8,7 +8,7 @@ export default function ProgramStackedBar({ data = {} }) {
   const closedProgramCount = Number(programData.closedPrograms ?? programData.closed_programs ?? 0);
   const totalProgramCount = (activeProgramCount + closedProgramCount) || 1;
   const activePct = Math.round((activeProgramCount / totalProgramCount) * 100);
-  const closedPct = 100 - activePct;
+  const closedPct = activePct==0?0:100 - activePct;
 
   return (
     <div className="card shadow-sm h-100">

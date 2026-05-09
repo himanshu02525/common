@@ -17,7 +17,7 @@ export default function TaxDonutChart({ data = {} }) {
     { label: 'Rejected', value: rejectedCount, color: '#6c757d' }
   ];
 
-  const totalCount = chartSegments.reduce((accumulator, seg) => accumulator + Number(seg.value || 0), 0) || 1;
+  const totalCount = chartSegments.reduce((acc, seg) => acc + Number(seg.value || 0), 0);
 
   return (
     <div className="card shadow-sm h-100">
@@ -31,18 +31,32 @@ export default function TaxDonutChart({ data = {} }) {
 
           <div className="w-100">
             {chartSegments.map((segment) => {
-              const pct = Math.round((Number(segment.value || 0) / totalCount) * 100);
+               const percentage = totalCount > 0
+                ? Math.round((Number(segment.value || 0) / totalCount) * 100)
+                : 0;
+
               return (
                 <div
                   key={segment.label}
                   className="d-flex align-items-center justify-content-between mb-1"
-                  title={`${segment.label}: ${segment.value} (${pct}%)`}
+                  title={`${segment.label}: ${segment.value} (${percentage}%)`}
                 >
                   <div className="d-flex align-items-center">
-                    <div style={{ width: 12, height: 12, background: segment.color, marginRight: 8, borderRadius: 2 }}></div>
+                    <div
+                      style={{
+                        width: 12,
+                        height: 12,
+                        background: segment.color,
+                        marginRight: 8,
+                        borderRadius: 2
+                      }}
+                    ></div>
                     <div className="small">{segment.label}</div>
                   </div>
-                  <div className="fw-semibold">{segment.value} <small className="text-muted">({pct}%)</small></div>
+                  <div className="fw-semibold">
+                    {segment.value || 0}
+                    <small className="text-muted ms-1">({percentage}%)</small>
+                  </div>
                 </div>
               );
             })}
