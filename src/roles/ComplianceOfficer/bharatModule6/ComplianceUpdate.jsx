@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ComplianceService from './ComplianceService';
+import {ComplianceService} from '../../../core/registry';
 import { toast } from 'react-toastify';
 
 const ComplianceUpdate = ({ record, onUpdated, onCancel }) => {

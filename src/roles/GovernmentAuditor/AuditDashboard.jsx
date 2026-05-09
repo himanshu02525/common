@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import AuditService from './AuditService';
 
-import DisplayAllAudits from './DisplayAllAudits';
-import AuditSummary from './AuditSummary';
+import {AuditService,AuditSummary,DisplayAllAudits}from '../../core/registry';
 import { useNavigate } from 'react-router-dom';
 
 const AuditDashboard = () => {

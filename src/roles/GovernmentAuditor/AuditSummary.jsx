@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import AuditService from './AuditService';
+import {AuditService} from '../../core/registry';
 
 const AuditSummary = () => {
   const [summary, setSummary] = useState({});

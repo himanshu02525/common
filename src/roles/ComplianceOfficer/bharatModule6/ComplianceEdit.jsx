@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ComplianceService from './ComplianceService';
 import { toast } from 'react-toastify';
+import { EmptyState, Loader ,ComplianceService} from '../../../core/registry';
 
 const ComplianceEdit = () => {
   const { id } = useParams();
@@ -23,7 +23,17 @@ const ComplianceEdit = () => {
       setForm({ result: res.data.result || 'PENDING', notes: res.data.notes || '' });
     } catch (err) {
       console.error(err);
-      toast.error(err?.response?.data?.message || 'Failed to load record');
+      // suppress toast for 404 or network errors, show local EmptyState instead
+      if (err?.response?.status === 404) {
+        setRecord(null);
+        setErrors((e) => ({ ...e, fetch: err.response.data?.message || 'Record not found' }));
+      } else if (err?.request && !err?.response) {
+        setRecord(null);
+        setErrors((e) => ({ ...e, fetch: 'Network error: Unable to reach server' }));
+      } else {
+        const msg = err?.response?.data?.message || 'Failed to load record';
+        toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
+      }
     } finally { setLoading(false); }
   };
 
@@ -50,8 +60,16 @@ const ComplianceEdit = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (!record) return <div>No record</div>;
+  if (loading) return <Loader message="Loading record..." />;
+  if (!record) {
+    const fetchMsg = errors.fetch || '';
+    return (
+      <EmptyState
+        title={fetchMsg.includes('not found') || fetchMsg.includes('Not Found') ? 'Record Not Found' : 'No record'}
+        message={fetchMsg || 'The requested record could not be loaded.'}
+      />
+    );
+  }
 
   return (
     <div className="container py-3">

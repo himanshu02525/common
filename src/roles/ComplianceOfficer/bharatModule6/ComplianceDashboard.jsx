@@ -1,8 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import ComplianceSummary from './ComplianceSummary';
-import DisplayAllCompliance from './DisplayAllCompliance';
-
+import {ComplianceSummary,DisplayAllCompliance} from '../../../core/registry';
 const ComplianceDashboard = () => {
     const navigate = useNavigate();
 

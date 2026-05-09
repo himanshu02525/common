@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AuditService from './AuditService';
+import {AuditService} from '../../core/registry';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 

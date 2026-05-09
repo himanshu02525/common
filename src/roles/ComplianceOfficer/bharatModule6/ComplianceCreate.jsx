@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ComplianceService from './ComplianceService';
+import {ComplianceService} from '../../../core/registry';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
