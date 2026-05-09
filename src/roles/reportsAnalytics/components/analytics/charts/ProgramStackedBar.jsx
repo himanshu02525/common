@@ -1,9 +1,13 @@
 import React from 'react';
 
 export default function ProgramStackedBar({ data = {} }) {
-  const { activePrograms = 0, closedPrograms = 0 } = data;
-  const total = activePrograms + closedPrograms || 1;
-  const activePct = Math.round((activePrograms / total) * 100);
+  if (!data) return null;
+
+  const programData = data || {};
+  const activeProgramCount = Number(programData.activePrograms ?? programData.active_programs ?? 0);
+  const closedProgramCount = Number(programData.closedPrograms ?? programData.closed_programs ?? 0);
+  const totalProgramCount = (activeProgramCount + closedProgramCount) || 1;
+  const activePct = Math.round((activeProgramCount / totalProgramCount) * 100);
   const closedPct = 100 - activePct;
 
   return (
@@ -15,8 +19,8 @@ export default function ProgramStackedBar({ data = {} }) {
           <div className="w-100 me-3" style={{ height: 28, background: '#f1f3f5', borderRadius: 6, overflow: 'hidden', position: 'relative' }}>
             <div
               style={{ width: `${activePct}%`, height: '100%', background: '#0d6efd', display: 'inline-block', position: 'relative' }}
-              title={`Active: ${activePrograms} (${activePct}%)`}
-              aria-label={`Active programs ${activePrograms} which is ${activePct} percent`}
+              title={`Active: ${activeProgramCount} (${activePct}%)`}
+              aria-label={`Active programs ${activeProgramCount} which is ${activePct} percent`}
             >
               {activePct > 10 ? (
                 <div style={{ position: 'absolute', left: '50%', top: 0, transform: 'translateX(-50%)', color: '#fff', height: '100%', display: 'flex', alignItems: 'center', fontSize: 12 }}>{activePct}%</div>
@@ -24,8 +28,8 @@ export default function ProgramStackedBar({ data = {} }) {
             </div>
             <div
               style={{ width: `${closedPct}%`, height: '100%', background: '#6c757d', display: 'inline-block', position: 'relative' }}
-              title={`Closed: ${closedPrograms} (${closedPct}%)`}
-              aria-label={`Closed programs ${closedPrograms} which is ${closedPct} percent`}
+              title={`Closed: ${closedProgramCount} (${closedPct}%)`}
+              aria-label={`Closed programs ${closedProgramCount} which is ${closedPct} percent`}
             >
               {closedPct > 10 ? (
                 <div style={{ position: 'absolute', left: '50%', top: 0, transform: 'translateX(-50%)', color: '#fff', height: '100%', display: 'flex', alignItems: 'center', fontSize: 12 }}>{closedPct}%</div>
@@ -35,8 +39,8 @@ export default function ProgramStackedBar({ data = {} }) {
             {closedPct <= 10 && <div style={{ position: 'absolute', left: 'calc(100% + 8px)', top: 18, height: 28, display: 'flex', alignItems: 'center' }}><small className="text-muted">{closedPct}%</small></div>}
           </div>
           <div style={{ width: 80 }}>
-            <div className="small"><span className="badge bg-primary me-1">{activePrograms}</span> Active</div>
-            <div className="small mt-1"><span className="badge bg-secondary me-1">{closedPrograms}</span> Closed</div>
+            <div className="small"><span className="badge bg-primary me-1">{activeProgramCount}</span> Active</div>
+            <div className="small mt-1"><span className="badge bg-secondary me-1">{closedProgramCount}</span> Closed</div>
           </div>
         </div>
       </div>

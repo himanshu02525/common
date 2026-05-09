@@ -1,7 +1,8 @@
 import React from 'react';
 
 export default function PieChart({ segments = [], size = 140 }) {
-  const total = segments.reduce((a, b) => a + (b.value || 0), 0) || 1;
+  const chartSegments = segments || [];
+  const total = chartSegments.reduce((acc, seg) => acc + Number(seg.value || 0), 0) || 1;
   let cumulative = 0;
 
   return (
@@ -9,9 +10,9 @@ export default function PieChart({ segments = [], size = 140 }) {
       <svg viewBox={`0 0 ${size} ${size}`} width="100%" height={size} role="img" aria-label="Pie chart">
         <title>Pie chart</title>
         <g transform={`translate(${size / 2}, ${size / 2})`}>
-          {segments.map((s, i) => {
+          {chartSegments.map((s, i) => {
             const startAngle = (cumulative / total) * 2 * Math.PI;
-            cumulative += s.value || 0;
+            cumulative += Number(s.value || 0);
             const endAngle = (cumulative / total) * 2 * Math.PI;
             const large = endAngle - startAngle > Math.PI ? 1 : 0;
             const r = size / 2;
@@ -25,7 +26,7 @@ export default function PieChart({ segments = [], size = 140 }) {
         </g>
       </svg>
       <div className="mt-2 small">
-        {segments.map((s) => (
+        {chartSegments.map((s) => (
           <div key={s.label} className="d-flex align-items-center mb-1">
             <span style={{ width: 10, height: 10, background: s.color, display: 'inline-block', marginRight: 8 }}></span>
             <span>{s.label} ({s.value})</span>

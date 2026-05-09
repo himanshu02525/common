@@ -2,29 +2,47 @@ import { useEffect, useState } from 'react';
 import * as api from '../api/reportApi';
 import { parseMetrics } from '../utils/parseMetrics';
 
-export function useReportDetails(id) {
-  const [report, setReport] = useState(null);
-  const [metrics, setMetrics] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+export function useReportDetails(reportId) {
+  const [reportDetails, setReportDetails] = useState(null);
+  const [parsedMetrics, setParsedMetrics] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
 
   useEffect(() => {
-    if (!id) return;
-    let mounted = true;
-    setLoading(true);
-    api.getReportById(id)
-      .then((res) => {
-        if (!mounted) return;
-        setReport(res);
-        const parsed = parseMetrics(res.metrics);
-        setMetrics(parsed || {});
-      })
-      .catch((err) => mounted && setError(err))
-      .finally(() => mounted && setLoading(false));
-    return () => (mounted = false);
-  }, [id]);
+    if (!reportId) {
+      setReportDetails(null);
+      setParsedMetrics({});
+      setIsLoading(false);
+      setLoadError(null);
+      return;
+    }
 
-  return { report, metrics, loading, error };
+    let isMounted = true;
+    setIsLoading(true);
+
+    api.getReportById(reportId)
+      .then((responsePayload) => {
+        if (!isMounted) return;
+        setReportDetails(responsePayload);
+        const metricsSource = responsePayload && responsePayload.metrics;
+        const normalizedMetrics = parseMetrics(metricsSource);
+        setParsedMetrics(normalizedMetrics || {});
+      })
+      .catch((fetchError) => {
+        if (!isMounted) return;
+        setLoadError(fetchError);
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [reportId]);
+
+  return { reportDetails, parsedMetrics, isLoading, loadError };
 }
 
 export default useReportDetails;

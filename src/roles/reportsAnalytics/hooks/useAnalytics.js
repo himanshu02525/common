@@ -2,33 +2,28 @@ import { useEffect, useState, useCallback } from 'react';
 import * as api from '../api/reportApi';
 
 export function useAnalytics() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(true);
+  const [analyticsError, setAnalyticsError] = useState(null);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
+  const fetchAnalyticsData = useCallback(async () => {
+    setIsLoadingAnalytics(true);
     try {
-      const res = await api.getAnalytics();
-      setData(res);
-      setError(null);
-    } catch (err) {
-      setError(err);
+      const responsePayload = await api.getAnalytics();
+      setAnalyticsData(responsePayload);
+      setAnalyticsError(null);
+    } catch (caughtError) {
+      setAnalyticsError(caughtError);
     } finally {
-      setLoading(false);
+      setIsLoadingAnalytics(false);
     }
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-    // call fetchData but ensure we don't update state if unmounted
-    fetchData();
-    return () => {
-      mounted = false;
-    };
-  }, [fetchData]);
+    fetchAnalyticsData();
+  }, [fetchAnalyticsData]);
 
-  return { data, loading, error, refetch: fetchData };
+  return { analyticsData, isLoadingAnalytics, analyticsError, refetch: fetchAnalyticsData };
 }
 
 export default useAnalytics;

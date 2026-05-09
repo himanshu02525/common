@@ -36,14 +36,20 @@ function Pie({ slices = [], size = 120 }) {
 }
 
 export default function SubsidyPie({ data = {} }) {
-  const { approvedApplications = 0, rejectedApplications = 0, onHoldCount = 0 } = data;
-  const slices = [
-    { label: 'Approved', value: approvedApplications, color: '#198754' },
-    { label: 'Rejected', value: rejectedApplications, color: '#dc3545' },
+  if (!data) return null;
+
+  const subsidySource = data || {};
+  const approvedCount = Number(subsidySource.approvedApplications ?? subsidySource.approved_applications ?? 0);
+  const rejectedCount = Number(subsidySource.rejectedApplications ?? subsidySource.rejected_applications ?? 0);
+  const onHoldCount = Number(subsidySource.onHoldCount ?? subsidySource.on_hold_count ?? 0);
+
+  const pieSlices = [
+    { label: 'Approved', value: approvedCount, color: '#198754' },
+    { label: 'Rejected', value: rejectedCount, color: '#dc3545' },
     { label: 'On Hold', value: onHoldCount, color: '#ffc107' }
   ];
 
-  const total = slices.reduce((a, b) => a + b.value, 0) || 1;
+  const totalCount = pieSlices.reduce((acc, s) => acc + Number(s.value || 0), 0) || 1;
 
   return (
     <div className="card shadow-sm h-100">
@@ -51,12 +57,12 @@ export default function SubsidyPie({ data = {} }) {
         <h6 className="card-title">Subsidy Outcomes</h6>
         <div className="d-flex flex-column align-items-center">
           <div className="mb-3" style={{ width: 140 }}>
-            <Pie slices={slices} />
+            <Pie slices={pieSlices} />
           </div>
 
           <div className="w-100">
-            {slices.map((s) => {
-              const pct = Math.round((s.value / total) * 100);
+            {pieSlices.map((s) => {
+              const pct = Math.round((Number(s.value || 0) / totalCount) * 100);
               return (
                 <div key={s.label} className="d-flex align-items-center justify-content-between mb-1" title={`${s.label}: ${s.value} (${pct}%)`}>
                   <div className="d-flex align-items-center">

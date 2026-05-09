@@ -6,13 +6,16 @@ import SubsidyMetricsCard from '../analytics/SubsidyMetricsCard';
 export default function ReportViewer({ scope, metrics = {} }) {
   if (!scope) return null;
 
-  const keyMap = {
-    TAX: () => <TaxMetricsCard data={metrics.taxMetrics || metrics} />,
-    PROGRAM: () => <ProgramMetricsCard data={metrics.programMetrics || metrics} />,
-    SUBSIDY: () => <SubsidyMetricsCard data={metrics.subsidyMetrics || metrics} />
+  const reportScope = scope;
+  const reportMetrics = metrics || {};
+
+  const scopeRendererMap = {
+    TAX: () => <TaxMetricsCard data={reportMetrics.taxMetrics || reportMetrics} />,
+    PROGRAM: () => <ProgramMetricsCard data={reportMetrics.programMetrics || reportMetrics} />,
+    SUBSIDY: () => <SubsidyMetricsCard data={reportMetrics.subsidyMetrics || reportMetrics} />
   };
 
-  const Renderer = keyMap[scope?.toUpperCase()] || (() => <div className="text-muted">Unknown scope</div>);
+  const Renderer = scopeRendererMap[reportScope?.toUpperCase()] || (() => <div className="text-muted">Unknown scope</div>);
 
   return (
     <div className="mt-3">

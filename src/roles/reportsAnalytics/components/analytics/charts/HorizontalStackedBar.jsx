@@ -1,19 +1,20 @@
 import React from 'react';
 
 export default function HorizontalStackedBar({ segments = [], height = 28 }) {
-  const total = segments.reduce((a, b) => a + (b.value || 0), 0) || 1;
+  const chartSegments = segments || [];
+  const totalValue = chartSegments.reduce((acc, seg) => acc + (Number(seg.value) || 0), 0) || 1;
 
   return (
     <div className="w-100">
       <div style={{ display: 'flex', height }} aria-hidden>
-        {segments.map((s, i) => {
-          const pct = ((s.value || 0) / total) * 100;
+        {chartSegments.map((segment, index) => {
+          const pct = ((Number(segment.value) || 0) / totalValue) * 100;
           return (
             <div
-              key={i}
+              key={index}
               style={{
                 width: `${pct}%`,
-                background: s.color || '#6c757d',
+                background: segment.color || '#6c757d',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: pct > 8 ? 'center' : 'flex-end',
@@ -22,7 +23,7 @@ export default function HorizontalStackedBar({ segments = [], height = 28 }) {
                 fontSize: 12,
                 minHeight: height
               }}
-              title={`${s.label}: ${s.value} (${Math.round(pct)}%)`}
+              title={`${segment.label}: ${segment.value} (${Math.round(pct)}%)`}
             >
               {pct > 5 ? `${Math.round(pct)}%` : ''}
             </div>

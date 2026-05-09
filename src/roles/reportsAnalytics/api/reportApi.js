@@ -1,39 +1,51 @@
 const API_BASE = 'http://localhost:8087';
 
-async function handleResponse(res) {
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || res.statusText);
+async function parseApiResponse(apiResponse) {
+  if (!apiResponse) {
+    throw new Error('No response received from the reports API');
   }
-  return res.json();
+  if (!apiResponse.ok) {
+    const serverText = await apiResponse.text();
+    throw new Error(serverText || apiResponse.statusText || 'Reports API request failed');
+  }
+  return apiResponse.json();
 }
 
 export async function getAnalytics() {
-  const res = await fetch(`${API_BASE}/reports/analytics`);
-  return handleResponse(res);
+  const apiResponse = await fetch(`${API_BASE}/reports/analytics`);
+  return parseApiResponse(apiResponse);
 }
 
 export async function getReportById(id) {
-  const res = await fetch(`${API_BASE}/reports/${id}`);
-  return handleResponse(res);
+  if (id === undefined || id === null) {
+    throw new Error('getReportById requires a valid report id');
+  }
+  const apiResponse = await fetch(`${API_BASE}/reports/${encodeURIComponent(id)}`);
+  return parseApiResponse(apiResponse);
 }
 
 export async function getReportsByScope(scope) {
-  const res = await fetch(`${API_BASE}/reports/scope/${encodeURIComponent(scope)}`);
-  return handleResponse(res);
+  if (!scope) {
+    throw new Error('getReportsByScope requires a non-empty scope');
+  }
+  const encodedScope = encodeURIComponent(scope);
+  const apiResponse = await fetch(`${API_BASE}/reports/scope/${encodedScope}`);
+  return parseApiResponse(apiResponse);
 }
 
 export async function generateReport(scope) {
-  const res = await fetch(`${API_BASE}/reports/generate?scope=${encodeURIComponent(scope)}`, {
+  if (!scope) {
+    throw new Error('generateReport requires a scope to generate');
+  }
+  const encodedScope = encodeURIComponent(scope);
+  const apiResponse = await fetch(`${API_BASE}/reports/generate?scope=${encodedScope}`, {
     method: 'POST'
   });
-  return handleResponse(res);
+  return parseApiResponse(apiResponse);
 }
 export async function fetchAll() {
-  const res = await fetch(`${API_BASE}/reports`, {
-    method: 'GET'
-  });
-  return handleResponse(res);
+  const apiResponse = await fetch(`${API_BASE}/reports`, { method: 'GET' });
+  return parseApiResponse(apiResponse);
 }
 export default {
   getAnalytics,
