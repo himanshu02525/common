@@ -1,6 +1,5 @@
 import React from 'react';
-import ReportCard from './ReportCard';
-import { EmptyState } from '../../../../core/registry';
+import { EmptyState ,ReportCard} from '../../../../core/registry';
 
 export default function ReportsList({ reports = [], emptyMessage = 'No reports available' }) {
   const reportItems = reports || [];

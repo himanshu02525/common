@@ -1,15 +1,13 @@
 import React from 'react';
-import MetricsGrid from '../common/MetricsGrid';
-import TaxMetricsCard from './TaxMetricsCard';
-import ProgramMetricsCard from './ProgramMetricsCard';
-import SubsidyMetricsCard from './SubsidyMetricsCard';
-import KPIStatCard from './charts/KPIStatCard';
-import TaxDonutChart from './charts/TaxDonutChart';
-import ProgramStackedBar from './charts/ProgramStackedBar';
-import StackedHorizontalBar from './charts/StackedHorizontalBar';
-import SubsidyPie from './charts/SubsidyPie';
-import KPIGauge from './charts/KPIGauge';
-
+import { 
+  TaxMetricsCard, 
+  KPIStatCard, 
+  TaxDonutChart, 
+  ProgramStackedBar, 
+  StackedHorizontalBar, 
+  SubsidyPie, 
+  KPIGauge 
+} from '../../../../core/registry';
 export default function AnalyticsOverview({ analytics = {} }) {
   if (!analytics) return null;
 

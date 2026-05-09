@@ -1,5 +1,5 @@
 import React from 'react';
-import DonutChart from './DonutChart';
+import {DonutChart} from '../../../../../core/registry';
 
 export default function TaxDonutChart({ data = {} }) {
   if (!data) return null;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import useGenerateReport from '../../hooks/useGenerateReport';
-import ScopeSelector from './ScopeSelector';
+import {ScopeSelector} from '../../../../core/registry';
 
 export default function CreateReportForm({ defaultScope = 'TAX', onSuccess }) {
   const [selectedScope, setSelectedScope] = useState(defaultScope);
