@@ -1,8 +1,5 @@
 import React from 'react';
-import TaxMetricsCard from '../analytics/TaxMetricsCard';
-import ProgramMetricsCard from '../analytics/ProgramMetricsCard';
-import SubsidyMetricsCard from '../analytics/SubsidyMetricsCard';
-
+import { SubsidyMetricsCard,ProgramMetricsCard,TaxMetricsCard} from '../../../../core/registry';
 export default function ReportViewer({ scope, metrics = {} }) {
   if (!scope) return null;
 
