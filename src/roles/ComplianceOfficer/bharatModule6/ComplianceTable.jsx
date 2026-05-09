@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { Modal } from '../../../components/common/Modal';
-import {RecordsTable,StatusBadge,ComplianceService} from '../../../core/registry';
-  // use StatusBadge component for result display
+import { RecordsTable, StatusBadge } from '../../../core/registry';
+import { useDispatch } from 'react-redux';
+import { deleteComplianceRecord } from '../../../redux/complianceOfficerSlice';
 
 const ComplianceTable = ({ records = [], loading = false, onRefresh }) => {
   const [selected, setSelected] = useState(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const dispatch = useDispatch();
 
   const openDetails = (rec) => setSelected(rec);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this compliance record?')) return;
     try {
-      await ComplianceService.delete(id);
+      await dispatch(deleteComplianceRecord(id)).unwrap();
       onRefresh && onRefresh();
     } catch (err) {
-      console.error('Delete failed', err);
+      console.error(err);
     }
   };
 
@@ -30,26 +31,65 @@ const ComplianceTable = ({ records = [], loading = false, onRefresh }) => {
             { label: 'ID', key: 'complianceId' },
             { label: 'Entity ID', key: 'entityId' },
             { label: 'Type', key: 'type' },
-              { label: 'Result', key: 'result', render: (v) => <StatusBadge type="result" value={v} /> },
-            { label: 'Created Date', key: 'createdAt', render: (v) => (v ? new Date(v).toLocaleString() : '') },
-            { label: 'Actions', render: (_, row) => (
-              <div>
-                <button className="btn btn-sm btn-link" onClick={() => openDetails(row)}>Details</button>
-                <button className="btn btn-sm btn-danger ms-2" onClick={() => handleDelete(row.complianceId)}>Delete</button>
-              </div>
-            ) }
+            {
+              label: 'Result',
+              key: 'result',
+              render: (v) => <StatusBadge type="result" value={v} />,
+            },
+            {
+              label: 'Created Date',
+              key: 'createdAt',
+              render: (v) => (v ? new Date(v).toLocaleString() : ''),
+            },
+            {
+              label: 'Actions',
+              render: (_, row) => (
+                <div>
+                  <button
+                    className="btn btn-sm btn-link"
+                    onClick={() => openDetails(row)}
+                  >
+                    Details
+                  </button>
+                  <button
+                    className="btn btn-sm btn-danger ms-2"
+                    onClick={() => handleDelete(row.complianceId)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              ),
+            },
           ]}
         />
       )}
 
-      <Modal isOpen={!!selected} onClose={() => setSelected(null)} title={`Compliance #${selected?.complianceId || ''}`} size="md">
+      <Modal
+        isOpen={!!selected}
+        onClose={() => setSelected(null)}
+        title={`Compliance #${selected?.complianceId || ''}`}
+        size="md"
+      >
         {selected && (
           <div>
-            <p><strong>Entity:</strong> {selected.entityId}</p>
-            <p><strong>Reference:</strong> {selected.referenceId}</p>
-            <p><strong>Type:</strong> {selected.type}</p>
-            <p><strong>Result:</strong> {selected.result}</p>
-            <p><strong>Created:</strong> {selected.createdAt ? new Date(selected.createdAt).toLocaleString() : ''}</p>
+            <p>
+              <strong>Entity:</strong> {selected.entityId}
+            </p>
+            <p>
+              <strong>Reference:</strong> {selected.referenceId}
+            </p>
+            <p>
+              <strong>Type:</strong> {selected.type}
+            </p>
+            <p>
+              <strong>Result:</strong> {selected.result}
+            </p>
+            <p>
+              <strong>Created:</strong>{' '}
+              {selected.createdAt
+                ? new Date(selected.createdAt).toLocaleString()
+                : ''}
+            </p>
             <hr />
             {selected.type === 'TAX' && selected.taxResponseDTO && (
               <div>
@@ -71,17 +111,23 @@ const ComplianceTable = ({ records = [], loading = false, onRefresh }) => {
               </div>
             )}
 
-            {selected.type === 'PROGRAM' && selected.financialProgramResponse && (
-              <div>
-                <h6>Program</h6>
-                <p>Program ID: {selected.financialProgramResponse.programId}</p>
-                <p>Title: {selected.financialProgramResponse.title}</p>
-                <p>Budget: {selected.financialProgramResponse.budget}</p>
-              </div>
-            )}
+            {selected.type === 'PROGRAM' &&
+              selected.financialProgramResponse && (
+                <div>
+                  <h6>Program</h6>
+                  <p>Program ID: {selected.financialProgramResponse.programId}</p>
+                  <p>Title: {selected.financialProgramResponse.title}</p>
+                  <p>Budget: {selected.financialProgramResponse.budget}</p>
+                </div>
+              )}
 
             <div className="mt-3">
-              <button className="btn btn-secondary" onClick={() => setSelected(null)}>Close</button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setSelected(null)}
+              >
+                Close
+              </button>
             </div>
           </div>
         )}

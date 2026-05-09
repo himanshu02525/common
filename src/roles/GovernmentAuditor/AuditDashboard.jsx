@@ -1,42 +1,25 @@
-import React, { useEffect, useState } from 'react';
-
-import {AuditService,AuditSummary,DisplayAllAudits}from '../../core/registry';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAudits } from '../../redux/auditSlice';
+import { Loader, RefetchButton, AuditSummary } from '../../core/registry';
 
 const AuditDashboard = () => {
-  const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { audits, loading } = useSelector((state) => state.audit);
 
   useEffect(() => {
-    fetchLogs();
-  }, []);
+    dispatch(fetchAudits());
+  }, [dispatch]);
 
-  const fetchLogs = async () => {
-    setLoading(true);
-    try {
-      const res = await AuditService.getAll();
-      setLogs(res.data || []);
-    } catch (err) {
-      console.error('Error fetching audits', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (loading) return <Loader message="Loading audit..." />;
 
   return (
     <div className="container-fluid py-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h3>Audit</h3>
+        <h3>Audit</h3> <RefetchButton onClick={() => dispatch(fetchAudits())} />
       </div>
 
-      <AuditSummary />
-
-      <div className="card mt-3">
-        <div className="card-body">
-          <DisplayAllAudits />
-        </div>
-      </div>
+      <AuditSummary audits={audits} />
     </div>
   );
 };

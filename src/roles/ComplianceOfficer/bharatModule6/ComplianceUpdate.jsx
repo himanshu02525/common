@@ -19,7 +19,6 @@ const ComplianceUpdate = ({ record, onUpdated, onCancel }) => {
       toast.success('Compliance updated');
       onUpdated && onUpdated();
     } catch (err) {
-      console.error('update error', err);
       const msg = err?.response?.data?.message || 'Failed to update compliance';
       toast.error(typeof msg === 'string' ? msg : 'Failed to update compliance');
     } finally {

@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './DisplayOneAudit.css';
-import { StatusBadge, DetailCard,EmptyState,AuditService } from '../../core/registry';
+import { StatusBadge, DetailCard, EmptyState } from '../../core/registry';
+import { getById } from '../../axios/roles/auditApi';
+
 const DisplayOneAudit = ({ audit: propAudit }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [audit, setAudit] = useState(propAudit || null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-
-  // use StatusBadge component
 
   useEffect(() => {
     if (!propAudit && id) fetchAudit(id);
@@ -18,24 +18,36 @@ const DisplayOneAudit = ({ audit: propAudit }) => {
   const fetchAudit = async (aid) => {
     setLoading(true);
     try {
-      const res = await AuditService.getById(aid);
-      setAudit(res.data);
+      const data = await getById(aid);
+      setAudit(data);
       setErrorMsg('');
     } catch (err) {
       console.error(err);
       const apiMsg = err?.response?.data?.message || err?.message || 'Unknown error';
       setErrorMsg(apiMsg);
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) return <div>Loading...</div>;
   if (!audit) {
-    const title = errorMsg && String(errorMsg).includes('Not Found') ? 'Audit Not Found' : (errorMsg && String(errorMsg).toLowerCase().includes('network') ? 'Network Error' : 'No Audit');
+    const title = errorMsg && String(errorMsg).includes('Not Found')
+      ? 'Audit Not Found'
+      : errorMsg && String(errorMsg).toLowerCase().includes('network')
+      ? 'Network Error'
+      : 'No Audit';
     const message = errorMsg || 'The requested audit record could not be found.';
     const action = (
       <div className="d-flex gap-2 justify-content-center">
-        <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>Back</button>
-        {id && <button className="btn btn-primary" onClick={() => fetchAudit(id)}>Retry</button>}
+        <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>
+          Back
+        </button>
+        {id && (
+          <button className="btn btn-primary" onClick={() => fetchAudit(id)}>
+            Retry
+          </button>
+        )}
       </div>
     );
     return <EmptyState title={title} message={message} action={action} />;
@@ -49,11 +61,24 @@ const DisplayOneAudit = ({ audit: propAudit }) => {
         badge={<StatusBadge value={audit.status} />}
         date={audit.createdAt ? new Date(audit.createdAt).toLocaleString() : ''}
         onBack={() => navigate(-1)}
-        actions={<button className="btn btn-sm btn-primary" onClick={() => navigate(`/audit/${audit.auditId}/edit`)}>Update</button>}
+        actions={
+          <button
+            className="btn btn-sm btn-primary"
+            onClick={() => navigate(`/audit/${audit.auditId}/edit`)}
+          >
+            Update
+          </button>
+        }
       >
         <div className="audit-grid">
-          <div className="field"><strong>Officer ID</strong><div>{audit.officerId}</div></div>
-          <div className="field"><strong>Audit ID</strong><div>{audit.auditId}</div></div>
+          <div className="field">
+            <strong>Officer ID</strong>
+            <div>{audit.officerId}</div>
+          </div>
+          <div className="field">
+            <strong>Audit ID</strong>
+            <div>{audit.auditId}</div>
+          </div>
         </div>
 
         <div className="mt-3">

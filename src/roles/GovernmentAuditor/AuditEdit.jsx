@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { AuditService } from '../../core/registry';
+import { EmptyState, Loader } from '../../core/registry';
+import useAudits from '../../hooks/roles/useAudits';
+import { update } from '../../axios/roles/auditApi';
 
 const AuditEdit = () => {
   const { id } = useParams();
@@ -11,27 +13,23 @@ const AuditEdit = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  useEffect(() => { if (id) fetchAudit(id); }, [id]);
+  const auditsHook = useAudits();
+  const { selected, loading: hookLoading, error: hookError, loadById } = auditsHook;
 
-  const fetchAudit = async (aid) => {
-    setLoading(true);
-    try {
-      const res = await AuditService.getById(aid);
-      setAudit(res.data);
-      setForm({ status: res.data.status || 'PENDING', findings: res.data.findings || '' });
-    } catch (err) {
-      console.error(err);
-      if (err?.response?.status === 404) {
-        setAudit(null);
-        setErrors((e) => ({ ...e, fetch: err.response.data?.message || 'Audit not found' }));
-      } else if (err?.request && !err?.response) {
-        setAudit(null);
-        setErrors((e) => ({ ...e, fetch: 'Network error: Unable to reach server' }));
-      } else {
-        toast.error(err?.response?.data?.message || 'Failed to load audit');
-      }
-    } finally { setLoading(false); }
-  };
+  useEffect(() => {
+    if (id) loadById(id);
+  }, [id, loadById]);
+
+  useEffect(() => {
+    if (selected) {
+      setAudit(selected);
+      setForm({ status: selected.status || 'PENDING', findings: selected.findings || '' });
+      setErrors({});
+    } else if (hookError) {
+      setAudit(null);
+      setErrors((e) => ({ ...e, fetch: hookError }));
+    }
+  }, [selected, hookError]);
 
   const validate = () => {
     const err = {};
@@ -45,15 +43,21 @@ const AuditEdit = () => {
     e.preventDefault();
     if (!validate()) return;
     try {
-      const res = await AuditService.update(id, { status: form.status, findings: form.findings });
-      const msg = res?.data?.message || (res?.data && res.data.auditId ? `Updated: ${res.data.auditId}` : 'Audit updated');
+      const res = await update(id, { status: form.status, findings: form.findings });
+      const msg = res?.message || (res?.auditId ? `Updated: ${res.auditId}` : 'Audit updated');
       toast.success(typeof msg === 'string' ? msg : JSON.stringify(msg));
       navigate('/audit/list');
-    } catch (err) { console.error(err); toast.error(err?.response?.data?.message || 'Update failed'); }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || 'Update failed');
+    }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (!audit) return <div>No audit</div>;
+  if (hookLoading) return <Loader message="Loading audit..." />;
+  if (!audit) {
+    const fetchMsg = errors.fetch || hookError || '';
+    return <EmptyState title={fetchMsg.toLowerCase().includes('not found') ? 'Audit Not Found' : 'No audit'} message={fetchMsg || 'The requested audit could not be loaded.'} />;
+  }
 
   return (
     <div className="container py-3">
@@ -63,7 +67,11 @@ const AuditEdit = () => {
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label className="form-label">Status</label>
-              <select className="form-select" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+              <select
+                className="form-select"
+                value={form.status}
+                onChange={(e) => setForm({ ...form, status: e.target.value })}
+              >
                 <option value="PENDING">PENDING</option>
                 <option value="IN_PROGRESS">IN_PROGRESS</option>
                 <option value="COMPLETED">COMPLETED</option>
@@ -71,13 +79,22 @@ const AuditEdit = () => {
             </div>
             <div className="mb-3">
               <label className="form-label">Findings</label>
-              <textarea maxLength={1000} className="form-control" value={form.findings} onChange={(e) => setForm({ ...form, findings: e.target.value })} />
+              <textarea
+                maxLength={1000}
+                className="form-control"
+                value={form.findings}
+                onChange={(e) => setForm({ ...form, findings: e.target.value })}
+              />
               <div className="text-muted small mt-1">{String(form.findings || '').length}/1000</div>
               {errors.findings && <div className="text-danger small mt-1">{errors.findings}</div>}
             </div>
             <div className="d-flex justify-content-end">
-              <button type="button" className="btn btn-secondary me-2" onClick={() => navigate(-1)}>Cancel</button>
-              <button type="submit" className="btn btn-primary">Update</button>
+              <button type="button" className="btn btn-secondary me-2" onClick={() => navigate(-1)}>
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary">
+                Update
+              </button>
             </div>
           </form>
         </div>
