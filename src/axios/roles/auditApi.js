@@ -24,3 +24,10 @@ export async function remove(id) {
   }
   throw new Error('Delete not supported');
 }
+export async function getSummary() {
+  if (typeof AuditService.getSummary !== 'function') {
+    throw new Error('Audit summary endpoint not available');
+  }
+  const res = await AuditService.getSummary();
+  return res.data;
+}

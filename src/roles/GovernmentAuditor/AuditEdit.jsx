@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { EmptyState, Loader } from '../../core/registry';
 import useAudits from '../../hooks/roles/useAudits';
-import AuditService from './AuditService';
+import { update } from '../../axios/roles/auditApi';
 
 const AuditEdit = () => {
   const { id } = useParams();
@@ -43,11 +43,14 @@ const AuditEdit = () => {
     e.preventDefault();
     if (!validate()) return;
     try {
-      const res = await AuditService.update(id, { status: form.status, findings: form.findings });
-      const msg = res?.data?.message || (res?.data && res.data.auditId ? `Updated: ${res.data.auditId}` : 'Audit updated');
+      const res = await update(id, { status: form.status, findings: form.findings });
+      const msg = res?.message || (res?.auditId ? `Updated: ${res.auditId}` : 'Audit updated');
       toast.success(typeof msg === 'string' ? msg : JSON.stringify(msg));
       navigate('/audit/list');
-    } catch (err) { console.error(err); toast.error(err?.response?.data?.message || 'Update failed'); }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || 'Update failed');
+    }
   };
 
   if (hookLoading) return <Loader message="Loading audit..." />;
@@ -64,7 +67,11 @@ const AuditEdit = () => {
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label className="form-label">Status</label>
-              <select className="form-select" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+              <select
+                className="form-select"
+                value={form.status}
+                onChange={(e) => setForm({ ...form, status: e.target.value })}
+              >
                 <option value="PENDING">PENDING</option>
                 <option value="IN_PROGRESS">IN_PROGRESS</option>
                 <option value="COMPLETED">COMPLETED</option>
@@ -72,13 +79,22 @@ const AuditEdit = () => {
             </div>
             <div className="mb-3">
               <label className="form-label">Findings</label>
-              <textarea maxLength={1000} className="form-control" value={form.findings} onChange={(e) => setForm({ ...form, findings: e.target.value })} />
+              <textarea
+                maxLength={1000}
+                className="form-control"
+                value={form.findings}
+                onChange={(e) => setForm({ ...form, findings: e.target.value })}
+              />
               <div className="text-muted small mt-1">{String(form.findings || '').length}/1000</div>
               {errors.findings && <div className="text-danger small mt-1">{errors.findings}</div>}
             </div>
             <div className="d-flex justify-content-end">
-              <button type="button" className="btn btn-secondary me-2" onClick={() => navigate(-1)}>Cancel</button>
-              <button type="submit" className="btn btn-primary">Update</button>
+              <button type="button" className="btn btn-secondary me-2" onClick={() => navigate(-1)}>
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary">
+                Update
+              </button>
             </div>
           </form>
         </div>

@@ -1,17 +1,17 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useCallback } from 'react';
-import { fetchAuditsList, fetchAuditById, clearAuditsSelected } from '../../redux/roles/rolesSlice';
+import { fetchAudits, fetchAuditById } from '../../redux/auditSlice';
 
 export default function useAudits() {
   const dispatch = useDispatch();
-  const audits = useSelector((s) => s.roles.audits);
+  const audits = useSelector((s) => s.audit);
 
-  const loadList = useCallback(() => dispatch(fetchAuditsList()), [dispatch]);
+  const loadList = useCallback(() => dispatch(fetchAudits()), [dispatch]);
   const loadById = useCallback((id) => dispatch(fetchAuditById(id)), [dispatch]);
-  const clearSelected = useCallback(() => dispatch(clearAuditsSelected()), [dispatch]);
+  const clearSelected = useCallback(() => dispatch({ type: 'audit/clearSelected' }), [dispatch]);
 
   return {
-    list: audits.list,
+    list: audits.audits,
     loading: audits.loading,
     error: audits.error,
     selected: audits.selected,

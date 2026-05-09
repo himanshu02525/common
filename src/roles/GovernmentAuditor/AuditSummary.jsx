@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {AuditService} from '../../core/registry';
+import { getSummary } from '../../axios/roles/auditApi';
 
 const AuditSummary = () => {
   const [summary, setSummary] = useState({});
@@ -8,8 +8,8 @@ const AuditSummary = () => {
 
   const fetchSummary = async () => {
     try {
-      const res = await AuditService.getSummary();
-      setSummary(res.data || {});
+      const res = await getSummary();
+      setSummary(res || {});
     } catch (err) { console.error(err); }
   };
 

@@ -21,6 +21,6 @@ export async function remove(id) {
   return res.data;
 }
 export async function summary() {
-  const res = await ComplianceService.summary();
+  const res = await ComplianceService.getSummary();
   return res.data;
 }

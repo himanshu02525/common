@@ -1,38 +1,36 @@
 import React, { useState } from 'react';
-import {AuditService} from '../../core/registry';
-import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { createAudit } from '../../redux/auditSlice';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
-const AuditCreate = ({ onCreated, onCancel }) => {
+const AuditCreate = () => {
   const [form, setForm] = useState({ officerId: '5', scope: 'PROGRAM', findings: '' });
-  const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState({});
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading } = useSelector((state) => state.audit);
 
   const handleSubmit = async (e) => {
-    e && e.preventDefault();
+    e.preventDefault();
     const err = {};
     if (!form.officerId || String(form.officerId).trim() === '') err.officerId = 'Officer ID is required';
     if (form.findings && form.findings.length > 1000) err.findings = 'Findings max 1000 chars';
     setErrors(err);
     if (Object.keys(err).length) return;
 
-    setSaving(true);
     try {
-      const res = await AuditService.create({ officerId: Number(form.officerId), scope: form.scope, findings: form.findings });
-    const msg = res?.data?.message || 
-            (res?.data?.auditId ? `Audit record ${res.data.auditId} has been successfully initialized.` : 'New audit record created successfully.');
-              toast.success(typeof msg === 'string' ? msg : JSON.stringify(msg));
-      onCreated && onCreated();
-      if (!onCreated) navigate('/audit/list');
+      await dispatch(createAudit({
+        officerId: Number(form.officerId),
+        scope: form.scope,
+        findings: form.findings,
+      })).unwrap();
+      toast.success('Audit record created successfully.');
+      navigate('/audit/list');
     } catch (err) {
-      const msg = err?.response?.data?.message || 'Failed to create audit';
-      toast.error(typeof msg === 'string' ? msg : 'Failed to create audit');
-    } finally {
-      setSaving(false);
+      toast.error(err.message || 'Failed to create audit');
     }
   };
-
-  const navigate = useNavigate();
 
   return (
     <div className="container py-3">
@@ -40,38 +38,41 @@ const AuditCreate = ({ onCreated, onCancel }) => {
         <div className="card-body">
           <h5>Create Audit</h5>
           <form onSubmit={handleSubmit}>
-      <div className="mb-3">
-        <label className="form-label">Officer ID <span className="text-danger">*</span></label>
-        <input
-          className="form-control"
-          inputMode="numeric"
-          pattern="\d*"
-          value={form.officerId}
-          readOnly
-          onChange={(e) => setForm({ ...form, officerId: e.target.value.replace(/\D/g, '') })}
-          placeholder="Enter Officer ID"
-        />
-        {errors.officerId && <div className="text-danger small mt-1">{errors.officerId}</div>}
-      </div>
-      <div className="mb-3">
-        <label className="form-label">Scope</label>
-        <select className="form-select" value={form.scope} onChange={(e) => setForm({ ...form, scope: e.target.value })}>
-          <option value="PROGRAM">PROGRAM</option>
-          <option value="SUBSIDY">SUBSIDY</option>
-          <option value="TAX">TAX</option>
-        </select>
-      </div>
-      <div className="mb-3">
-        <label className="form-label">Findings</label>
-        <textarea maxLength={1000} className="form-control" rows={4} value={form.findings} onChange={(e) => setForm({ ...form, findings: e.target.value })} />
-        <div className="text-muted small mt-1">{String(form.findings || '').length}/1000</div>
-        {errors.findings && <div className="text-danger small mt-1">{errors.findings}</div>}
-      </div>
-              <div className="d-flex justify-content-end">
-                <button type="button" className="btn btn-secondary me-2" onClick={() => (onCancel ? onCancel() : navigate(-1))}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Saving...' : 'Create'}</button>
-              </div>
-            </form>
+            <div className="mb-3">
+              <label className="form-label">Officer ID <span className="text-danger">*</span></label>
+              <input
+                className="form-control"
+                inputMode="numeric"
+                pattern="\d*"
+                value={form.officerId}
+                onChange={(e) => setForm({ ...form, officerId: e.target.value })}
+              />
+              {errors.officerId && <small className="text-danger">{errors.officerId}</small>}
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Scope</label>
+              <select
+                className="form-select"
+                value={form.scope}
+                onChange={(e) => setForm({ ...form, scope: e.target.value })}
+              >
+                <option value="PROGRAM">Program</option>
+                <option value="PROJECT">Project</option>
+              </select>
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Findings</label>
+              <textarea
+                className="form-control"
+                value={form.findings}
+                onChange={(e) => setForm({ ...form, findings: e.target.value })}
+              />
+              {errors.findings && <small className="text-danger">{errors.findings}</small>}
+            </div>
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? 'Saving...' : 'Create Audit'}
+            </button>
+          </form>
         </div>
       </div>
     </div>
