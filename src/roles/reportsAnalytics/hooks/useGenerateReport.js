@@ -2,24 +2,27 @@ import { useState } from 'react';
 import * as api from '../api/reportApi';
 
 export function useGenerateReport() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState(null);
 
-  async function generate(scope) {
-    setLoading(true);
-    setError(null);
+  async function generateReportForScope(scope) {
+    if (!scope) {
+      throw new Error('generateReport requires a non-empty scope');
+    }
+    setIsGenerating(true);
+    setGenerateError(null);
     try {
-      const res = await api.generateReport(scope);
-      setLoading(false);
-      return res;
-    } catch (err) {
-      setError(err);
-      setLoading(false);
-      throw err;
+      const responsePayload = await api.generateReport(scope);
+      setIsGenerating(false);
+      return responsePayload;
+    } catch (caughtError) {
+      setGenerateError(caughtError);
+      setIsGenerating(false);
+      throw caughtError;
     }
   }
 
-  return { generate, loading, error };
+  return { generate: generateReportForScope, isGenerating, generateError };
 }
 
 export default useGenerateReport;

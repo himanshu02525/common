@@ -1,8 +1,11 @@
 import React from 'react';
 
 export default function Gauge({ value = 0, min = 0, max = 100, size = 160, color = '#0d6efd' }) {
-  const clamped = Math.max(min, Math.min(max, value));
-  const pct = (clamped - min) / (max - min || 1);
+  const currentValue = Number(value || 0);
+  const minValue = Number(min || 0);
+  const maxValue = Number(max || 100);
+  const clamped = Math.max(minValue, Math.min(maxValue, currentValue));
+  const pct = (clamped - minValue) / (maxValue - minValue || 1);
   const start = Math.PI; // left
   const end = 0; // right
   const angle = start + (end - start) * pct; // angle in radians
@@ -22,7 +25,7 @@ export default function Gauge({ value = 0, min = 0, max = 100, size = 160, color
           <line x1={cx} y1={size/2} x2={needleX} y2={needleY} stroke="#333" strokeWidth="2" />
         </g>
       </svg>
-      <div className="text-center small">{clamped} / {max}</div>
+      <div className="text-center small">{clamped} / {maxValue}</div>
     </div>
   );
 }

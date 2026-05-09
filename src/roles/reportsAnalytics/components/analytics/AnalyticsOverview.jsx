@@ -11,7 +11,14 @@ import SubsidyPie from './charts/SubsidyPie';
 import KPIGauge from './charts/KPIGauge';
 
 export default function AnalyticsOverview({ analytics = {} }) {
-  const { taxDetails = {}, programDetails = {}, subsidyDetails = {} } = analytics;
+  if (!analytics) return null;
+
+  const analyticsPayload = analytics;
+  const { taxDetails = {}, programDetails = {}, subsidyDetails = {} } = analyticsPayload;
+
+  const taxAnalytics = taxDetails || {};
+  const programAnalytics = programDetails || {};
+  const subsidyAnalytics = subsidyDetails || {};
 
   return (
     <section>
@@ -19,32 +26,40 @@ export default function AnalyticsOverview({ analytics = {} }) {
 
       <div className="row g-3 mb-3">
         <div className="col-12 col-md-6 col-lg-4">
-          <KPIStatCard title="Revenue Collected" value={`₹${(taxDetails.revenueCollected || 0).toLocaleString()}`} subtitle={`Taxpayers: ${taxDetails.totalTaxpayers || 0}`} />
+          <KPIStatCard
+            title="Revenue Collected"
+            value={`₹${Number(taxAnalytics.revenueCollected || 0).toLocaleString()}`}
+            subtitle={`Taxpayers: ${Number(taxAnalytics.totalTaxpayers || 0)}`}
+          />
         </div>
         <div className="col-12 col-md-6 col-lg-4">
-          <KPIStatCard title="Total Budget" value={`₹${(programDetails.totalBudget || 0).toLocaleString()}`} subtitle={`Programs: ${programDetails.totalPrograms || 0}`} />
+          <KPIStatCard
+            title="Total Budget"
+            value={`₹${Number(programAnalytics.totalBudget || 0).toLocaleString()}`}
+            subtitle={`Programs: ${Number(programAnalytics.totalPrograms || 0)}`}
+          />
         </div>
         <div className="col-12 col-md-6 col-lg-4">
-          <KPIGauge value={subsidyDetails.amountDistributed || 0} max={programDetails.totalBudget || 1000000} />
+          <KPIGauge value={Number(subsidyAnalytics.amountDistributed || 0)} max={Number(programAnalytics.totalBudget || 1000000)} />
         </div>
       </div>
 
       <div className="row g-3">
         <div className="col-12 col-md-6 col-lg-4">
-          <TaxDonutChart data={taxDetails} />
+          <TaxDonutChart data={taxAnalytics} />
         </div>
         <div className="col-12 col-md-6 col-lg-4">
-          <ProgramStackedBar data={programDetails} />
+          <ProgramStackedBar data={programAnalytics} />
         </div>
         <div className="col-12 col-md-6 col-lg-4">
-          <SubsidyPie data={subsidyDetails} />
+          <SubsidyPie data={subsidyAnalytics} />
         </div>
       </div>
 
       <div className="row g-3 mt-3">
         <div className="col-12 col-lg-8">
           <StackedHorizontalBar
-            data={subsidyDetails}
+            data={subsidyAnalytics}
             stages={[
               { key: 'applicationsReceived', label: 'Received', color: '#0d6efd' },
               { key: 'verifiedCount', label: 'Verified', color: '#6f42c1' },

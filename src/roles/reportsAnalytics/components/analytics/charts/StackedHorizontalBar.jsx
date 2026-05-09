@@ -1,7 +1,9 @@
 import React from 'react';
 
 export default function StackedHorizontalBar({ data = {}, stages = [] }) {
-  const values = stages.map((s) => ({ ...s, value: Number(data[s.key] || 0) }));
+  const progressData = data || {};
+  const stageDefinitions = stages || [];
+  const values = stageDefinitions.map((stageDef) => ({ ...stageDef, value: Number(progressData[stageDef.key] || 0) }));
   const max = Math.max(...values.map((v) => v.value), 1);
 
   return (

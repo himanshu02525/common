@@ -1,33 +1,35 @@
-import React from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
+import { EmptyState, ReportsList, RefetchButton } from '../../../core/registry';
 import useReportsByScope from '../hooks/useReportsByScope';
-import ReportsList from '../components/report/ReportsList';
-import CreateReportForm from '../components/generate/CreateReportForm';
-import EmptyState from '../../../components/common/EmptyState';
 
 export default function ScopeReports() {
   const { scope: pathScope } = useParams();
   const { search } = useLocation();
 
   // Accept query param ?scope=subsidy OR path param /reports/scope/subsidy
-  const qs = new URLSearchParams(search);
-  const rawScope = (qs.get('scope') || pathScope || '').trim();
+  const queryParams = new URLSearchParams(search);
+  const requestedScope = (queryParams.get('scope') || pathScope || '').trim();
 
   // Backend expects uppercase scope (e.g. SUBSIDY)
-  const normalizedScope = rawScope ? rawScope.toUpperCase() : undefined;
+  const normalizedScope = requestedScope ? requestedScope.toUpperCase() : undefined;
 
-  const { reports, loading, error, setReports } = useReportsByScope(normalizedScope);
+  const { scopedReports, isLoadingReports, loadError, setScopedReports, refetch } = useReportsByScope(normalizedScope);
 
   return (
     <div className="container py-4">
-      <div className="mb-3">
-        <Link to="/reports/analytics">Back to Dashboard</Link>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <Link to="/reports/analytics">Back to Dashboard</Link>
+        </div>
+        <div>
+          <RefetchButton onClick={() => refetch && refetch()} loading={isLoadingReports} title="Refresh scoped reports" />
+        </div>
       </div>
 
-      {loading && <div className="text-muted">Loading reports...</div>}
-      {error && <EmptyState title="Failed to load reports" message={error.message || 'Unable to fetch reports.'} />}
+      {isLoadingReports && <div className="text-muted">Loading reports...</div>}
+      {loadError && <EmptyState title="Failed to load reports" message={loadError.message || 'Unable to fetch reports.'} />}
 
-      <ReportsList reports={reports} />
+      <ReportsList reports={scopedReports} />
     </div>
   );
 }

@@ -1,7 +1,9 @@
 import React from 'react';
 
 export default function KPIGauge({ value = 0, max = 1000000 }) {
-  const percent = Math.min(100, Math.round((value / Math.max(1, max)) * 100));
+  const currentValue = Number(value || 0);
+  const maxValue = Number(max || 1);
+  const percent = Math.min(100, Math.round((currentValue / Math.max(1, maxValue)) * 100));
   const size = 120;
   const radius = size / 2 - 10;
   const circumference = 2 * Math.PI * radius;
@@ -31,7 +33,7 @@ export default function KPIGauge({ value = 0, max = 1000000 }) {
           </g>
         </svg>
         <div className="mt-2">
-          <div className="h5 mb-0">₹{Number(value).toLocaleString()}</div>
+          <div className="h5 mb-0">₹{currentValue.toLocaleString()}</div>
           <small className="text-muted">{percent}% of target</small>
         </div>
       </div>

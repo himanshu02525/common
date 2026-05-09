@@ -1,5 +1,5 @@
 import React from 'react';
-import CreateReportForm from '../components/generate/CreateReportForm';
+import { CreateReportForm } from '../../../core/registry';
 import { useNavigate } from 'react-router-dom';
 
 export default function CreateReport() {

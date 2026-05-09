@@ -1,49 +1,50 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import ReportsList from '../components/report/ReportsList';
-import Loader from '../../../components/common/Loader';
+import { Loader, CreateReportForm, EmptyState, ReportsList, RefetchButton } from '../../../core/registry';
 import { fetchAll } from '../api/reportApi';
-import EmptyState from '../../../components/common/EmptyState';
-import CreateReportForm from '../components/generate/CreateReportForm';
 
-function DisplayAllReports() {
-  const [reports, setReports] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+function ReportsDashboard() {
+  const [allReports, setAllReports] = useState(null);
+  const [isLoadingReports, setIsLoadingReports] = useState(true);
+  const [loadError, setLoadError] = useState(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const fetchAllReports = useCallback(async () => {
+    setIsLoadingReports(true);
+    setLoadError(null);
     try {
-      const data = await fetchAll();
-      const list = Array.isArray(data) ? data : data?.reports ?? data?.items ?? [];
-      setReports(list);
+      const responsePayload = await fetchAll();
+      const normalizedList = Array.isArray(responsePayload)
+        ? responsePayload
+        : responsePayload?.reports ?? responsePayload?.items ?? [];
+      setAllReports(normalizedList);
     } catch (err) {
-      console.error('fetchAll failed', err);
-      setError(err.message || String(err));
+      console.error('fetchAllReports failed', err);
+      setLoadError(err.message || String(err));
     } finally {
-      setLoading(false);
+      setIsLoadingReports(false);
     }
   }, []);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    fetchAllReports();
+  }, [fetchAllReports]);
 
-  if (loading) return <Loader message="Loading reports..." />;
-  if (error) return <EmptyState title="Failed to load reports" message={error} />;
+  if (isLoadingReports) return <Loader message="Loading reports..." />;
+  if (loadError) return <EmptyState title="Failed to load reports" message={loadError} />;
 
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4 className="m-0">All Reports</h4>
+        <h4 className="m-0 d-flex align-items-center">All Reports
+          <RefetchButton onClick={fetchAllReports} loading={isLoadingReports} title="Refresh reports" />
+        </h4>
         <div>
-          <CreateReportForm onSuccess={(r) => { load(); }} />
+          <CreateReportForm onSuccess={() => { fetchAllReports(); }} />
         </div>
       </div>
 
-      <ReportsList reports={reports || []} />
+      <ReportsList reports={allReports || []} />
     </div>
   );
 }
 
-export default DisplayAllReports;
+export default ReportsDashboard;

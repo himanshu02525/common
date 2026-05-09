@@ -7,24 +7,24 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/global.css';
 import './App.css';
 
-import Layout from './components/layout/Layout';
-import ComplianceDashboard from './roles/ComplianceOfficer/bharatModule6/ComplianceDashboard';
-import ComplianceCreate from './roles/ComplianceOfficer/bharatModule6/ComplianceCreate';
-import DisplayAllCompliance from './roles/ComplianceOfficer/bharatModule6/DisplayAllCompliance';
-import DisplayOneRecord from './roles/ComplianceOfficer/bharatModule6/DisplayOneRecord';
-import ComplianceEdit from './roles/ComplianceOfficer/bharatModule6/ComplianceEdit';
-import AuditDashboard from './roles/GovernmentAuditor/AuditDashboard';
-import AuditCreate from './roles/GovernmentAuditor/AuditCreate';
-import DisplayAllAudits from './roles/GovernmentAuditor/DisplayAllAudits';
-import DisplayOneAudit from './roles/GovernmentAuditor/DisplayOneAudit';
-import AuditEdit from './roles/GovernmentAuditor/AuditEdit';
-import ReportsDashboard from './roles/reportsAnalytics/pages/ReportsDashboard';
-import ReportDetails from './roles/reportsAnalytics/pages/ReportDetails';
-import ScopeReports from './roles/reportsAnalytics/pages/ScopeReports';
-import CreateReport from './roles/reportsAnalytics/pages/CreateReport';
-import ReportsList from './roles/reportsAnalytics/components/report/ReportsList';
-import DisplayAllReports from './roles/reportsAnalytics/pages/DisplayAllReports';
-
+import { 
+  Layout, 
+  ComplianceDashboard, 
+  ComplianceCreate, 
+  DisplayAllCompliance, 
+  DisplayOneRecord, 
+  ComplianceEdit,
+  AuditDashboard,
+  AuditCreate,
+  DisplayAllAudits,
+  DisplayOneAudit,
+  AuditEdit,
+  AnalyticsDashboard,
+  ReportDetails,
+  ScopeReports,
+  CreateReport,
+  ReportsDashboard
+} from './core/registry'; 
 function App() {
   return (
     <Router>
@@ -43,9 +43,9 @@ function App() {
           <Route path="/audit/:id" element={<DisplayOneAudit />} />
           <Route path="/audit/:id/edit" element={<AuditEdit />} />
           
-          <Route path="/reports" element={<DisplayAllReports />} />
+          <Route path="/reports" element={<ReportsDashboard />} />
           <Route path="/reports/create" element={<CreateReport />} />
-          <Route path="/reports/analytics" element={<ReportsDashboard />} />
+          <Route path="/reports/analytics" element={<AnalyticsDashboard />} />
           <Route path="/reports/scope/:scope" element={<ScopeReports />} />
           <Route path="/reports/:id" element={<ReportDetails />} />
         </Routes>

@@ -1,13 +1,26 @@
 import React from 'react';
-import StatItem from '../../../../components/ui/StatItem';
+import { StatItem } from '../../../../core/registry';
 
 export default function TaxMetricsCard({ data = {} }) {
-  // Accept both camelCase and snake_case payloads from API and coerce to numbers
-  const revenueCollected = Number(data.revenueCollected ?? data.revenue_collected ?? data.revenue ?? 0);
-  const totalRecords = Number(data.totalRecords ?? data.total_records ?? data.records ?? 0);
-  const totalTaxpayers = Number(data.totalTaxpayers ?? data.total_taxpayers ?? data.taxpayers ?? 0);
-  const paidCount = Number(data.paidCount ?? data.paid_count ?? data.paid ?? 0);
-  const overdueCount = Number(data.overdueCount ?? data.overdue_count ?? data.overdue ?? 0);
+  if (!data) return null;
+
+  // Map incoming payload to clearly named local variables and coerce to numbers
+  const taxMetricsSource = data;
+  const revenueCollectedAmount = Number(
+    taxMetricsSource.revenueCollected ?? taxMetricsSource.revenue_collected ?? taxMetricsSource.revenue ?? 0
+  );
+  const totalRecordCount = Number(
+    taxMetricsSource.totalRecords ?? taxMetricsSource.total_records ?? taxMetricsSource.records ?? 0
+  );
+  const totalTaxpayerCount = Number(
+    taxMetricsSource.totalTaxpayers ?? taxMetricsSource.total_taxpayers ?? taxMetricsSource.taxpayers ?? 0
+  );
+  const paidCountNumber = Number(
+    taxMetricsSource.paidCount ?? taxMetricsSource.paid_count ?? taxMetricsSource.paid ?? 0
+  );
+  const overdueCountNumber = Number(
+    taxMetricsSource.overdueCount ?? taxMetricsSource.overdue_count ?? taxMetricsSource.overdue ?? 0
+  );
 
   return (
     <div className="col-12">
@@ -17,18 +30,18 @@ export default function TaxMetricsCard({ data = {} }) {
 
           <div className="row">
             <div className="col-12">
-              <h3 className="mb-3">₹{revenueCollected.toLocaleString()}</h3>
+              <h3 className="mb-3">₹{revenueCollectedAmount.toLocaleString()}</h3>
               <div className="mb-2">
-                <StatItem label="Total Records" value={totalRecords.toLocaleString()} />
+                <StatItem label="Total Records" value={totalRecordCount.toLocaleString()} />
               </div>
               <div className="mb-2">
-                <StatItem label="Total Taxpayers" value={totalTaxpayers.toLocaleString()} />
+                <StatItem label="Total Taxpayers" value={totalTaxpayerCount.toLocaleString()} />
               </div>
               <div className="mb-2">
-                <StatItem label="Paid" value={paidCount.toLocaleString()} />
+                <StatItem label="Paid" value={paidCountNumber.toLocaleString()} />
               </div>
               <div className="mb-2">
-                <StatItem label="Overdue" value={overdueCount.toLocaleString()} />
+                <StatItem label="Overdue" value={overdueCountNumber.toLocaleString()} />
               </div>
             </div>
           </div>

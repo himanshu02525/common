@@ -1,22 +1,27 @@
-import React from 'react';
 import { useParams } from 'react-router-dom';
 import useReportDetails from '../hooks/useReportDetails';
-import ReportViewer from '../components/report/ReportViewer';
-import EmptyState from '../../../components/common/EmptyState';
-import PieChart from '../components/analytics/charts/PieChart';
+import { EmptyState, ReportViewer } from '../../../core/registry';
 
 export default function ReportDetails() {
-  const { id } = useParams();
-  const { report, metrics, loading, error } = useReportDetails(id);
+  const { id: routeReportId } = useParams();
+  const { reportDetails, parsedMetrics, isLoading, loadError } = useReportDetails(routeReportId);
 
-  if (loading) return <div className="container py-4">Loading report...</div>;
-  if (error) return <div className="container py-4"><EmptyState title="Failed to load report" message={error.message || 'Unable to fetch the report.'} /></div>;
+  if (isLoading) return <div className="container py-4">Loading report...</div>;
+  if (loadError)
+    return (
+      <div className="container py-4">
+        <EmptyState title="Failed to load report" message={loadError.message || 'Unable to fetch the report.'} />
+      </div>
+    );
+
+  const safeReport = reportDetails || {};
+
   return (
     <div className="container py-4">
       <div className="card shadow-sm">
         <div className="card-body">
-          <h4 className="mb-2">Report ID : {report.reportId}</h4>
-          <ReportViewer scope={report.scope} metrics={metrics} />
+          <h4 className="mb-2">Report ID : {safeReport.reportId || 'N/A'}</h4>
+          <ReportViewer scope={safeReport.scope} metrics={parsedMetrics} />
         </div>
       </div>
     </div>
