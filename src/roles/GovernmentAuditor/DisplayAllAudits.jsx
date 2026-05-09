@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './DisplayAllAudits.css';
-import { EmptyState, Loader,SearchBar,StatusBadge,RecordsTable,AuditService } from '../../core/registry';
+import { EmptyState,RefetchButton, Loader, SearchBar, StatusBadge, RecordsTable , AuditService } from '../../core/registry';
+import useAudits from '../../hooks/roles/useAudits';
+import { toast } from 'react-toastify';
 
 const DisplayAllAudits = () => {
     const [logs, setLogs] = useState([]);
@@ -13,7 +15,8 @@ const DisplayAllAudits = () => {
 
     // StatusBadge used for rendering statuses
 
-    useEffect(() => { fetchLogs(); }, []);
+    const { loadList } = useAudits();
+    useEffect(() => { loadList(); }, [loadList]);
 
     const fetchLogs = async () => {
         setLoading(true);
@@ -58,30 +61,35 @@ const DisplayAllAudits = () => {
         return key.split('.').reduce((o, k) => (o ? o[k] : undefined), obj);
     };
 
+    const auditsHook = useAudits();
+    const { list: storeLogs, loading: storeLoading, error: storeError } = auditsHook;
     const displayedRecords = useMemo(() => {
-        let filtered = logs || [];
+        let filtered = storeLogs || [];
         if (filterText && filterText.trim() !== '') {
             const s = filterText.toLowerCase();
             filtered = filtered.filter((r) => Object.values(r).some((v) => String(v || '').toLowerCase().includes(s)));
         }
         return filtered;
-    }, [logs, filterText]);
+    }, [storeLogs, filterText]);
 
     return (
         <div>
+            <div className="d-flex justify-content-end align-items-end mb-3">
+                    <RefetchButton onClick={loadList} />
+                  </div>
             <SearchBar
                 value={filterText}
                 onChange={(e) => setFilterText(e.target.value)}
-                onClear={() => { setFilterText(''); fetchLogs(); }}
+                onClear={() => { setFilterText(''); loadList(); }}
                 onSubmit={() => { /* filtering is live; kept for compatibility */ }}
                 placeholder="Search audit records..."
             />
 
-            {loading && <Loader message="Loading audits..." />}
-            {!loading && loadError && (
-                <EmptyState title="Failed to load audits" message={String(loadError)} />
+            {storeLoading && <Loader message="Loading audits..." />}
+            {!storeLoading && storeError && (
+                <EmptyState title="Failed to load audits" message={String(storeError)} />
             )}
-            {!loading && !loadError && (
+            {!storeLoading && !storeError && (
                 <RecordsTable
                     data={displayedRecords}
                     columns={[

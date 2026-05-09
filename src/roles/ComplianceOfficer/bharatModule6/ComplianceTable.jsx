@@ -15,7 +15,7 @@ const ComplianceTable = ({ records = [], loading = false, onRefresh }) => {
       await ComplianceService.delete(id);
       onRefresh && onRefresh();
     } catch (err) {
-      console.error('Delete failed', err);
+      // delete failed - handled via UI toast in caller if desired
     }
   };
 

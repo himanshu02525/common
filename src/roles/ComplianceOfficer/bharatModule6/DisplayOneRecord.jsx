@@ -27,7 +27,6 @@ const DisplayOneRecord = ({ record: propRecord }) => {
         setErrorMsg('');
       }
     } catch (err) {
-      console.error(err);
       const apiMsg = err?.response?.data?.message || err?.message || 'Unknown error';
       setErrorMsg(`Failed to fetch record: ${apiMsg}`);
     } finally {
@@ -77,16 +76,16 @@ const DisplayOneRecord = ({ record: propRecord }) => {
         </div>
 
         {record.type === 'TAX' && record.taxResponseDTO && (
-          <div className="card record-section mt-3"><div className="card-body"><TaxDetails tax={record.taxResponseDTO} /></div></div>
+          <div className="card-body"><TaxDetails tax={record.taxResponseDTO} /></div>
         )}
         {record.type === 'SUBSIDY' && record.subsidyResponse && (
-          <div className="card record-section mt-3"><div className="card-body"><SubsidyDetails subsidy={record.subsidyResponse} /></div></div>
+        <div className="card-body"><SubsidyDetails subsidy={record.subsidyResponse} /></div>
         )}
         {record.type === 'FUNDING_PROGRAM' && record.financialProgramResponse && (
-          <div className="card record-section mt-3"><div className="card-body"><FundingProgramDetails program={record.financialProgramResponse} /></div></div>
+        <div className="card-body"><FundingProgramDetails program={record.financialProgramResponse} /></div>
         )}
         {record.citizenBusinessResponseDTO && (
-          <div className="card record-section mt-3"><div className="card-body"><CitizenBusinessDetails entity={record.citizenBusinessResponseDTO} /></div></div>
+        <div className="card-body"><CitizenBusinessDetails entity={record.citizenBusinessResponseDTO} /></div>
         )}
       </DetailCard>
     </div>

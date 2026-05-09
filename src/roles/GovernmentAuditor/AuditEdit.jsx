@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { AuditService } from '../../core/registry';
+import { EmptyState, Loader } from '../../core/registry';
+import useAudits from '../../hooks/roles/useAudits';
+import AuditService from './AuditService';
 
 const AuditEdit = () => {
   const { id } = useParams();
@@ -11,27 +13,23 @@ const AuditEdit = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  useEffect(() => { if (id) fetchAudit(id); }, [id]);
+  const auditsHook = useAudits();
+  const { selected, loading: hookLoading, error: hookError, loadById } = auditsHook;
 
-  const fetchAudit = async (aid) => {
-    setLoading(true);
-    try {
-      const res = await AuditService.getById(aid);
-      setAudit(res.data);
-      setForm({ status: res.data.status || 'PENDING', findings: res.data.findings || '' });
-    } catch (err) {
-      console.error(err);
-      if (err?.response?.status === 404) {
-        setAudit(null);
-        setErrors((e) => ({ ...e, fetch: err.response.data?.message || 'Audit not found' }));
-      } else if (err?.request && !err?.response) {
-        setAudit(null);
-        setErrors((e) => ({ ...e, fetch: 'Network error: Unable to reach server' }));
-      } else {
-        toast.error(err?.response?.data?.message || 'Failed to load audit');
-      }
-    } finally { setLoading(false); }
-  };
+  useEffect(() => {
+    if (id) loadById(id);
+  }, [id, loadById]);
+
+  useEffect(() => {
+    if (selected) {
+      setAudit(selected);
+      setForm({ status: selected.status || 'PENDING', findings: selected.findings || '' });
+      setErrors({});
+    } else if (hookError) {
+      setAudit(null);
+      setErrors((e) => ({ ...e, fetch: hookError }));
+    }
+  }, [selected, hookError]);
 
   const validate = () => {
     const err = {};
@@ -52,8 +50,11 @@ const AuditEdit = () => {
     } catch (err) { console.error(err); toast.error(err?.response?.data?.message || 'Update failed'); }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (!audit) return <div>No audit</div>;
+  if (hookLoading) return <Loader message="Loading audit..." />;
+  if (!audit) {
+    const fetchMsg = errors.fetch || hookError || '';
+    return <EmptyState title={fetchMsg.toLowerCase().includes('not found') ? 'Audit Not Found' : 'No audit'} message={fetchMsg || 'The requested audit could not be loaded.'} />;
+  }
 
   return (
     <div className="container py-3">

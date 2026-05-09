@@ -1,21 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import {ComplianceService} from '../../../core/registry';
+import { ComplianceService, Loader } from '../../../core/registry';
 
 const ComplianceSummary = () => {
   const [summary, setSummary] = useState({});
 
-  useEffect(() => {
-    fetchSummary();
-  }, []);
+  useEffect(() => { fetchSummary(); }, []);
 
   const fetchSummary = async () => {
     try {
       const res = await ComplianceService.getSummary();
       setSummary(res.data || {});
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   };
+
 
   return (
     <div className="row mb-4">

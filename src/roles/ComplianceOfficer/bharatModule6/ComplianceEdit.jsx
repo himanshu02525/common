@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { EmptyState, Loader ,ComplianceService} from '../../../core/registry';
+import { EmptyState, Loader } from '../../../core/registry';
+import useCompliance from '../../../hooks/roles/useCompliance';
+import ComplianceService from './ComplianceService';
 
 const ComplianceEdit = () => {
   const { id } = useParams();
@@ -11,31 +13,23 @@ const ComplianceEdit = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    if (id) fetchRecord(id);
-  }, [id]);
+  const complianceHook = useCompliance();
+  const { selected, loading: hookLoading, error: hookError, loadById } = complianceHook;
 
-  const fetchRecord = async (rid) => {
-    setLoading(true);
-    try {
-      const res = await ComplianceService.getById(rid);
-      setRecord(res.data);
-      setForm({ result: res.data.result || 'PENDING', notes: res.data.notes || '' });
-    } catch (err) {
-      console.error(err);
-      // suppress toast for 404 or network errors, show local EmptyState instead
-      if (err?.response?.status === 404) {
-        setRecord(null);
-        setErrors((e) => ({ ...e, fetch: err.response.data?.message || 'Record not found' }));
-      } else if (err?.request && !err?.response) {
-        setRecord(null);
-        setErrors((e) => ({ ...e, fetch: 'Network error: Unable to reach server' }));
-      } else {
-        const msg = err?.response?.data?.message || 'Failed to load record';
-        toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
-      }
-    } finally { setLoading(false); }
-  };
+  useEffect(() => {
+    if (id) loadById(id);
+  }, [id, loadById]);
+
+  useEffect(() => {
+    if (selected) {
+      setRecord(selected);
+      setForm({ result: selected.result || 'PENDING', notes: selected.notes || '' });
+      setErrors({});
+    } else if (hookError) {
+      setRecord(null);
+      setErrors((e) => ({ ...e, fetch: hookError }));
+    }
+  }, [selected, hookError]);
 
   const validate = () => {
     const err = {};
@@ -54,18 +48,17 @@ const ComplianceEdit = () => {
       toast.success(typeof msg === 'string' ? msg : JSON.stringify(msg));
       navigate('/compliance/list');
     } catch (err) {
-      console.error(err);
       const msg = err?.response?.data?.message || 'Update failed';
       toast.error(typeof msg === 'string' ? msg : 'Update failed');
     }
   };
 
-  if (loading) return <Loader message="Loading record..." />;
+  if (hookLoading) return <Loader/>;
   if (!record) {
-    const fetchMsg = errors.fetch || '';
+    const fetchMsg = errors.fetch || hookError || '';
     return (
       <EmptyState
-        title={fetchMsg.includes('not found') || fetchMsg.includes('Not Found') ? 'Record Not Found' : 'No record'}
+        title={fetchMsg.toLowerCase().includes('not found') ? 'Record Not Found' : 'No record'}
         message={fetchMsg || 'The requested record could not be loaded.'}
       />
     );

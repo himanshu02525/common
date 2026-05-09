@@ -25,7 +25,6 @@ const AuditCreate = ({ onCreated, onCancel }) => {
       onCreated && onCreated();
       if (!onCreated) navigate('/audit/list');
     } catch (err) {
-      console.error(err);
       const msg = err?.response?.data?.message || 'Failed to create audit';
       toast.error(typeof msg === 'string' ? msg : 'Failed to create audit');
     } finally {

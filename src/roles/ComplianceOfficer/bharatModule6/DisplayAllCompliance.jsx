@@ -1,46 +1,19 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {ComplianceService} from '../../../core/registry';
+import ComplianceService from './ComplianceService';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './DisplayAllCompliance.css';
-import { SearchBar, StatusBadge, RecordsTable, EmptyState, Loader } from '../../../core/registry';
+import { SearchBar, StatusBadge, RecordsTable, EmptyState, Loader,RefetchButton } from '../../../core/registry';
+import useCompliance from '../../../hooks/roles/useCompliance';
 const DisplayAllCompliance = () => {
-  const [records, setRecords] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState(null);
-  const [emptyData, setEmptyData] = useState(false);
   const [filterText, setFilterText] = useState('');
   const navigate = useNavigate();
 
+  const complianceHook = useCompliance();
+  const { list: storeRecords, loading: storeLoading, error: storeError, loadList } = complianceHook;
   useEffect(() => {
-    fetchRecords();
-  }, []);
-
-  const fetchRecords = async () => {
-    setLoading(true);
-    setLoadError(null);
-    setEmptyData(false);
-    try {
-      const res = await ComplianceService.getAll();
-      const data = res?.data ?? [];
-      setRecords(data);
-      if (!Array.isArray(data) || data.length === 0) {
-        setEmptyData(true);
-      }
-    } catch (err) {
-      // Handle 404, network errors and empty datasets by showing EmptyState instead of toast
-      if (err?.response?.status === 404) {
-        setLoadError(err.response.data?.message || 'Not found');
-      } else if (err?.request && !err?.response) {
-        setLoadError('Network error: Unable to reach server');
-      } else {
-        const msg = err?.response?.data?.message || 'Failed to load compliance records';
-        toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+    loadList();
+  }, [loadList]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this record?')) return;
@@ -48,7 +21,7 @@ const DisplayAllCompliance = () => {
       const res = await ComplianceService.delete(id);
       const msg = (res && (res.data || res.data === '') ? res.data : 'Compliance deleted');
       toast.success(typeof msg === 'string' ? msg : JSON.stringify(msg));
-      fetchRecords();
+      complianceHook.loadList();
     } catch (err) {
       const msg = err?.response?.data?.message || 'Failed to delete compliance record';
       toast.error(typeof msg === 'string' ? msg : 'Failed to delete compliance record');
@@ -61,35 +34,38 @@ const DisplayAllCompliance = () => {
     return key.split('.').reduce((o, k) => (o ? o[k] : undefined), obj);
   };
 
+
+
   const displayedRecords = useMemo(() => {
-    let filtered = records || [];
+    let filtered = storeRecords || [];
     if (filterText && filterText.trim() !== '') {
       const s = filterText.toLowerCase();
-      filtered = filtered.filter((r) => {
-        return Object.values(r).some((v) => String(v || '').toLowerCase().includes(s));
-      });
+      filtered = filtered.filter((r) => Object.values(r).some((v) => String(v || '').toLowerCase().includes(s)));
     }
     return filtered;
-  }, [records, filterText]);
+  }, [storeRecords, filterText]);
 
   return (
     <div>
+      <div className="d-flex justify-content-end align-items-end mb-3">
+        <RefetchButton onClick={loadList} />
+      </div>
       <SearchBar
         value={filterText}
         onChange={(e) => setFilterText(e.target.value)}
-        onClear={() => { setFilterText(''); fetchRecords(); }}
+        onClear={() => { setFilterText(''); loadList(); }}
         onSubmit={() => { /* filtering is live; kept for compatibility */ }}
         placeholder="Search compliance records..."
       />
 
-      {loading && <Loader message="Loading compliance records..." />}
-      {!loading && loadError && (
-        <EmptyState title="Failed to load records" message={String(loadError)} />
+      {storeLoading && <Loader message="Loading compliance records..." />}
+      {!storeLoading && storeError && (
+        <EmptyState title="Failed to load records" message={String(storeError)} />
       )}
-      {!loading && !loadError && emptyData && (
+      {!storeLoading && !storeError && (!storeRecords || storeRecords.length === 0) && (
         <EmptyState title="No records" message="No compliance records were returned by the server." />
       )}
-      {!loading && !loadError && !emptyData && (
+      {!storeLoading && !storeError && storeRecords && storeRecords.length > 0 && (
         <RecordsTable
           data={displayedRecords}
           columns={[
@@ -98,16 +74,18 @@ const DisplayAllCompliance = () => {
             { label: 'Type', key: 'type', sortable: true },
             { label: 'Result', key: 'result', sortable: true, render: (v) => <StatusBadge type="result" value={v} /> },
             { label: 'Created', key: 'createdAt', sortable: true, render: (v) => (v ? new Date(v).toLocaleString() : '') },
-            { label: 'Action', render: (_, row) => (
-              <div className="action-td">
-                <button className="btn btn-sm btn-link view-btn" onClick={() => navigate(`/compliance/${row.complianceId}`)}>View</button>
-                <button className="btn btn-sm btn-outline-primary ms-2 edit-btn" onClick={() => navigate(`/compliance/${row.complianceId}/edit`)}>Edit</button>
-              </div>
-            ) }
+            {
+              label: 'Action', render: (_, row) => (
+                <div className="action-td">
+                  <button className="btn btn-sm btn-link view-btn" onClick={() => navigate(`/compliance/${row.complianceId}`)}>View</button>
+                  <button className="btn btn-sm btn-outline-primary ms-2 edit-btn" onClick={() => navigate(`/compliance/${row.complianceId}/edit`)}>Edit</button>
+                </div>
+              )
+            }
           ]}
         />
       )}
-      
+
     </div>
   );
 };
