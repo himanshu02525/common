@@ -1,5 +1,5 @@
 import React from 'react';
-import { SubsidyMetricsCard,ProgramMetricsCard,TaxMetricsCard} from '../../../../core/registry';
+import { SubsidyMetricsCard, ProgramMetricsCard, TaxMetricsCard, MetricsGrid } from '../../../../core/registry';
 export default function ReportViewer({ scope, metrics = {} }) {
   if (!scope) return null;
 
@@ -7,16 +7,16 @@ export default function ReportViewer({ scope, metrics = {} }) {
   const reportMetrics = metrics || {};
 
   const scopeRendererMap = {
-    TAX: () => <TaxMetricsCard data={reportMetrics.taxMetrics || reportMetrics} />,
-    PROGRAM: () => <ProgramMetricsCard data={reportMetrics.programMetrics || reportMetrics} />,
-    SUBSIDY: () => <SubsidyMetricsCard data={reportMetrics.subsidyMetrics || reportMetrics} />
+    TAX: () => <TaxMetricsCard data={reportMetrics.taxMetrics || reportMetrics} generatedAt={reportMetrics.generatedAt} />,
+    PROGRAM: () => <ProgramMetricsCard data={reportMetrics.programMetrics || reportMetrics} generatedAt={reportMetrics.generatedAt} />,
+    SUBSIDY: () => <SubsidyMetricsCard data={reportMetrics.subsidyMetrics || reportMetrics}  generatedAt={reportMetrics.generatedAt}/>
   };
 
   const Renderer = scopeRendererMap[reportScope?.toUpperCase()] || (() => <div className="text-muted">Unknown scope</div>);
 
   return (
-    <div className="mt-3">
-      <Renderer />
-    </div>
+      <MetricsGrid>
+        <Renderer />
+      </MetricsGrid>
   );
 }

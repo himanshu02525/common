@@ -1,13 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/global.css';
 import './App.css';
 
 import { 
+  AnalyticsOverview,
   Layout, 
   ComplianceDashboard, 
   ComplianceCreate, 
@@ -19,11 +19,11 @@ import {
   DisplayAllAudits,
   DisplayOneAudit,
   AuditEdit,
-  AnalyticsDashboard,
   ReportDetails,
   ScopeReports,
   CreateReport,
-  ReportsDashboard
+  ReportsDashboard,
+  AnalyticsDashboard
 } from './core/registry'; 
 function App() {
   return (

@@ -25,7 +25,12 @@ export const fetchAnalyticsData = createAsyncThunk(
 const reportsAnalyticsSlice = createSlice({
   name: 'reportsAnalytics',
   initialState,
-  reducers: {},
+  reducers: {
+    clearAnalyticsData(state) {
+      state.analyticsData = null;
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchAnalyticsData.pending, (state) => {
@@ -43,4 +48,5 @@ const reportsAnalyticsSlice = createSlice({
   },
 });
 
+export const { clearAnalyticsData } = reportsAnalyticsSlice.actions;
 export default reportsAnalyticsSlice.reducer;

@@ -24,25 +24,32 @@ export async function getReportById(id) {
   return parseApiResponse(apiResponse);
 }
 
-export async function getReportsByScope(scope) {
-  if (!scope) {
-    throw new Error('getReportsByScope requires a non-empty scope');
+
+export async function generateReport(scope, extraParam, reportName) {
+  if (!scope) throw new Error('Scope is required');
+
+  let baseUrl = `${API_BASE}/reports/generate-by-scope`;
+  let queryParams = new URLSearchParams({ scope });
+
+  if (extraParam) {
+    if (scope === 'TAX') {
+      queryParams.append('year', extraParam);
+    } else if (scope === 'PROGRAM') {
+      queryParams.append('id', extraParam);
+    }
   }
-  const encodedScope = encodeURIComponent(scope);
-  const apiResponse = await fetch(`${API_BASE}/reports/scope/${encodedScope}`);
+  if (reportName) {
+    queryParams.append('reportName', reportName);
+  }
+  console.log(`${baseUrl}?${queryParams.toString()}`);
+
+  const apiResponse = await fetch(`${baseUrl}?${queryParams.toString()}`, {
+    method: 'POST'
+  });
+
   return parseApiResponse(apiResponse);
 }
 
-export async function generateReport(scope) {
-  if (!scope) {
-    throw new Error('generateReport requires a scope to generate');
-  }
-  const encodedScope = encodeURIComponent(scope);
-  const apiResponse = await fetch(`${API_BASE}/reports/generate?scope=${encodedScope}`, {
-    method: 'POST'
-  });
-  return parseApiResponse(apiResponse);
-}
 export async function fetchAll() {
   const apiResponse = await fetch(`${API_BASE}/reports`, { method: 'GET' });
   return parseApiResponse(apiResponse);
@@ -50,7 +57,6 @@ export async function fetchAll() {
 export default {
   getAnalytics,
   getReportById,
-  getReportsByScope,
   generateReport,
   fetchAll
 };

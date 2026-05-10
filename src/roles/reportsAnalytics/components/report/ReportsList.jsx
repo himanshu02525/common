@@ -11,7 +11,7 @@ export default function ReportsList({ reports = [], emptyMessage = 'No reports a
   return (
     <div>
       {reportItems.map((reportItem) => (
-        <ReportCard key={reportItem.reportId || reportItem.id} report={reportItem} />
+        <ReportCard key={reportItem.reportId } report={reportItem} />
       ))}
     </div>
   );
