@@ -4,6 +4,7 @@ import { createAudit } from '../../redux/auditSlice';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useCharacterLimit } from '../../hooks/roles/useCharacterLimit';
+import { CharacterAllow } from '../../core/registry';
 const AuditCreate = () => {
   const notesManager = useCharacterLimit('', 1000);
   const [form, setForm] = useState({ officerId: '5', scope: 'PROGRAM', findings: '' });
@@ -72,11 +73,7 @@ const AuditCreate = () => {
                 onChange={notesManager.handleChange}
                 style={{resize:"none"}}
               />
-              <div className="d-flex justify-content-end">
-                <small className={notesManager.isFull ? 'text-danger fw-bold' : 'text-muted'}>
-                  {notesManager.count} / {notesManager.limit} characters
-                </small>
-              </div>
+              <CharacterAllow count={notesManager.count} limit={notesManager.limit}/>
               {errors.findings && <small className="text-danger">{errors.findings}</small>}
             </div>
             <button type="submit" className="btn btn-primary" disabled={loading}>

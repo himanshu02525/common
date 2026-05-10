@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { EmptyState, Loader } from '../../core/registry';
+import { EmptyState, Loader ,CharacterAllow } from '../../core/registry';
 import useAudits from '../../hooks/roles/useAudits';
 import { update } from '../../axios/roles/auditApi';
-
+import {useCharacterLimit } from '../../hooks/roles/useCharacterLimit';
 const AuditEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -12,6 +12,7 @@ const AuditEdit = () => {
   const [form, setForm] = useState({ status: 'PENDING', findings: '' });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+    const notesManager = useCharacterLimit('', 1000);
 
   const auditsHook = useAudits();
   const { selected, loading: hookLoading, error: hookError, loadById } = auditsHook;
@@ -23,7 +24,7 @@ const AuditEdit = () => {
   useEffect(() => {
     if (selected) {
       setAudit(selected);
-      setForm({ status: selected.status || 'PENDING', findings: selected.findings || '' });
+      setForm({ status: selected.status || 'PENDING', findings:notesManager.value || '' });
       setErrors({});
     } else if (hookError) {
       setAudit(null);
@@ -84,10 +85,11 @@ const AuditEdit = () => {
               <textarea
                 maxLength={1000}
                 className="form-control"
-                value={form.findings}
-                onChange={(e) => setForm({ ...form, findings: e.target.value })}
+                value={notesManager.value}
+                onChange={notesManager.handleChange}
               />
-              <div className="text-muted small mt-1">{String(form.findings || '').length}/1000</div>
+              <CharacterAllow count={notesManager.count} limit={notesManager.limit} />
+
               {errors.findings && <div className="text-danger small mt-1">{errors.findings}</div>}
             </div>
             <div className="d-flex justify-content-end">
