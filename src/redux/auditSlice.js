@@ -58,7 +58,7 @@ export const getAuditSummary = createAsyncThunk(
   'audit/getAuditSummary',
   async (_, { rejectWithValue }) => {
     try {
-      const data = await auditApi.summary();
+      const data = await auditApi.getSummary(); 
       return data || {};
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message || 'Failed to load audit summary';
