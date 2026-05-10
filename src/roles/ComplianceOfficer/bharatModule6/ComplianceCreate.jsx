@@ -1,32 +1,30 @@
 import React, { useState } from 'react';
-import { createComplianceRecord } from '../../../redux/complianceOfficerSlice';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
+import { createComplianceRecord } from '../../../redux/complianceOfficerSlice';
+import { useCharacterLimit } from '../../../hooks/roles/useCharacterLimit';
 
 const ComplianceCreate = ({ onCreated, onCancel }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const notesManager = useCharacterLimit('', 1000);
+
   const [complianceForm, setComplianceForm] = useState({
     entityId: '',
     referenceId: '',
     complianceType: 'TAX',
-    notes: '',
   });
   const [isSaving, setIsSaving] = useState(false);
   const [formErrors, setFormErrors] = useState({});
 
   const getReferenceLabel = () => {
     switch (complianceForm.complianceType) {
-      case 'TAX':
-        return 'Tax ID';
-      case 'SUBSIDY':
-        return 'Subsidy ID';
-      case 'PROGRAM':
-        return 'Program ID';
-      default:
-        return 'Reference ID';
+      case 'TAX': return 'Tax ID';
+      case 'SUBSIDY': return 'Subsidy ID';
+      case 'PROGRAM': return 'Program ID';
+      default: return 'Reference ID';
     }
   };
 
@@ -41,16 +39,9 @@ const ComplianceCreate = ({ onCreated, onCancel }) => {
     if (e) e.preventDefault();
 
     const errors = {};
-    const referenceLabel = getReferenceLabel();
-
-    if (!complianceForm.entityId.trim()) {
-      errors.entityId = 'Entity ID is required';
-    }
+    if (!complianceForm.entityId.trim()) errors.entityId = 'Entity ID is required';
     if (!complianceForm.referenceId.trim()) {
-      errors.referenceId = `${referenceLabel} is required`;
-    }
-    if (complianceForm.notes && complianceForm.notes.length > 1000) {
-      errors.notes = 'Notes cannot exceed 1000 characters';
+      errors.referenceId = `${getReferenceLabel()} is required`;
     }
 
     setFormErrors(errors);
@@ -62,11 +53,10 @@ const ComplianceCreate = ({ onCreated, onCancel }) => {
         entityId: Number(complianceForm.entityId),
         referenceId: Number(complianceForm.referenceId),
         type: complianceForm.complianceType,
-        notes: complianceForm.notes,
+        notes: notesManager.value,
       };
 
       await dispatch(createComplianceRecord(payload)).unwrap();
-
       toast.success('Compliance record created successfully.');
 
       if (onCreated) {
@@ -140,24 +130,17 @@ const ComplianceCreate = ({ onCreated, onCancel }) => {
             <div className="mb-3">
               <label className="form-label">Notes</label>
               <textarea
-                className={`form-control ${formErrors.notes ? 'is-invalid' : ''}`}
+                className="form-control"
                 rows="3"
-                value={complianceForm.notes}
-                onChange={(e) => handleInputChange('notes', e.target.value)}
+                maxLength={1000}
+                value={notesManager.value}
+                onChange={notesManager.handleChange}
+                style={{ resize: 'none' }}
               />
-              <div className="d-flex justify-content-between">
-                <small
-                  className={
-                    complianceForm.notes.length > 1000
-                      ? 'text-danger'
-                      : 'text-muted'
-                  }
-                >
-                  {complianceForm.notes.length} / 1000 characters
+              <div className="d-flex justify-content-end">
+                <small className={notesManager.isFull ? 'text-danger fw-bold' : 'text-muted'}>
+                  {notesManager.count} / {notesManager.limit} characters
                 </small>
-                {formErrors.notes && (
-                  <small className="text-danger">{formErrors.notes}</small>
-                )}
               </div>
             </div>
 
@@ -176,11 +159,7 @@ const ComplianceCreate = ({ onCreated, onCancel }) => {
               >
                 {isSaving ? (
                   <>
-                    <span
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     Saving...
                   </>
                 ) : (

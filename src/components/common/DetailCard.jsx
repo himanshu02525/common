@@ -1,24 +1,19 @@
 import React from 'react';
 import './DetailCard.css';
+import BackButton from './compliance/BackButton';
 
 const DetailCard = ({
   title,
   subtitle,
   badge,
   date,
-  onBack,
   children,
   actions,
 }) => {
   return (
     <div className="detailcard-container">
-      {/* Back Button Section */}
-      <div className="m-2">
-        {onBack && (
-          <button className="btn btn-sm btn-primary px-4" onClick={onBack}>
-            Back
-          </button>
-        )}
+    <div className="m-2">
+        <BackButton />
       </div>
 
       <div className="card detail-card">

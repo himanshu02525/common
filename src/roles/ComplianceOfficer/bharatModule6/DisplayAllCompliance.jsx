@@ -3,7 +3,7 @@ import ComplianceService from './ComplianceService';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './DisplayAllCompliance.css';
-import { SearchBar, StatusBadge, RecordsTable, EmptyState, Loader,RefetchButton } from '../../../core/registry';
+import { SearchBar, StatusBadge, RecordsTable, EmptyState, Loader,RefetchButton,DetailCard } from '../../../core/registry';
 import useCompliance from '../../../hooks/roles/useCompliance';
 const DisplayAllCompliance = () => {
   const [filterText, setFilterText] = useState('');
