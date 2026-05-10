@@ -48,7 +48,7 @@ const ComplianceEdit = () => {
       toast.success('Compliance record updated successfully.');
       navigate('/compliance/list');
     } catch (err) {
-      toast.error(err.message || 'Update failed');
+      toast.error(err || 'Update failed');
     }
   };
 
