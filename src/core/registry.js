@@ -18,6 +18,7 @@ export { default as RefetchButton } from '../components/ui/RefetchButton';
 export { default as CachedIcon } from '@mui/icons-material/Cached';
 export {default as BackButton} from '../components/common/compliance/BackButton';
 export { default as DataUnavailable } from '../components/common/compliance/DataUnavailable';
+export {default as CharacterAllow} from '../components/common/compliance/CharacterAllow';
 // --- Compliance Officer (Bharat Module 6) ---
 export { default as ComplianceDashboard } from '../roles/ComplianceOfficer/bharatModule6/ComplianceDashboard';
 export { default as ComplianceCreate } from '../roles/ComplianceOfficer/bharatModule6/ComplianceCreate';
