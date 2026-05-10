@@ -65,7 +65,7 @@ const ComplianceCreate = ({ onCreated, onCancel }) => {
         navigate('/compliance/list');
       }
     } catch (error) {
-      toast.error(error.message || 'Failed to create compliance record');
+      toast.error(error || 'Failed to create compliance record');
     } finally {
       setIsSaving(false);
     }
