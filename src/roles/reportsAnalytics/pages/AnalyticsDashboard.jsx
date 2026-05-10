@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchAnalyticsData } from '../../../redux/reportsAnalyticsSlice';
-import { Dashboard, RefetchButton } from '../../../core/registry';
+import { Dashboard, EmptyState, RefetchButton } from '../../../core/registry';
 
 const AnalyticsDashboardContainer = () => {
   const dispatch = useDispatch();

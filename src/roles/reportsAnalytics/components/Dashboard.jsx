@@ -3,94 +3,99 @@ import { useSelector } from "react-redux";
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid,
 } from "recharts";
-import { StatusCard, Loader } from "../../../core/registry";
+import { StatusCard, Loader, EmptyState, DataUnavailable } from "../../../core/registry";
 
 const COLORS = ["#4e73df", "#1cc88a", "#f6c23e", "#e74a3b", "#36b9cc"];
 
-// ✅ VALUE LIST (RIGHT SIDE)
-const ValueList = ({ title, data }) => (
-  <div className="p-3">
-    <h6 className="fw-bold mb-3">{title}</h6>
-    {data.map((item, i) => (
-      <div key={i} className="d-flex justify-content-between mb-2 border-bottom pb-1">
-        <span>{item.name}</span>
-        <strong>{item.value}</strong>
-      </div>
-    ))}
-  </div>
-);
 
-// ✅ PIE
-const CustomPie = ({ data }) => (
-  <ResponsiveContainer width="100%" height={250}>
-    <PieChart>
-      <Pie data={data} dataKey="value" innerRadius={60} outerRadius={90}>
-        {data.map((_, i) => (
-          <Cell key={i} fill={COLORS[i % COLORS.length]} />
-        ))}
-      </Pie>
-      <Tooltip />
-    </PieChart>
-  </ResponsiveContainer>
-);
 
-// ✅ BAR
-const CustomBar = ({ data }) => (
-  <ResponsiveContainer width="100%" height={250}>
-    <BarChart data={data}>
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="name" />
-      <YAxis />
-      <Tooltip />
-      <Bar dataKey="value" fill="#4e73df" />
-    </BarChart>
-  </ResponsiveContainer>
-);
+const ValueList = ({ title, data }) => {
+  if (!data || data.length === 0) return null;
+  return (
+    <div className="p-3">
+      {title && <h6 className="fw-bold mb-3">{title}</h6>}
+      {data.map((item, i) => (
+        <div key={i} className="d-flex justify-content-between mb-2 border-bottom pb-1">
+          <span>{item.name}</span>
+          <strong>{item.value ?? 0}</strong>
+        </div>
+      ))}
+    </div>
+  );
+};
 
-// ✅ MAIN DASHBOARD
+const CustomPie = ({ data }) => {
+  if (!data || data.length === 0) return null;
+  return (
+    <ResponsiveContainer width="100%" height={250}>
+      <PieChart>
+        <Pie data={data} dataKey="value" innerRadius={60} outerRadius={90}>
+          {data.map((_, i) => (
+            <Cell key={i} fill={COLORS[i % COLORS.length]} />
+          ))}
+        </Pie>
+        <Tooltip />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+};
+
+const CustomBar = ({ data }) => {
+  if (!data || data.length === 0) return null;
+  return (
+    <ResponsiveContainer width="100%" height={250}>
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Bar dataKey="value" fill="#4e73df" />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+};
+
 const Dashboard = () => {
   const { analyticsData, isLoading, error } = useSelector((state) => state.reportsAnalytics);
 
   if (isLoading) return <Loader />;
-  if (error) return <div>Error: {error}</div>;
-  if (!analyticsData) return <div>No data available</div>;
+  if (error || !analyticsData) return <EmptyState message={error} />;
 
-  const taxStatus = [
-    { name: "Paid", value: analyticsData.taxDetails.status.paid },
-    { name: "Pending", value: analyticsData.taxDetails.status.pending },
-    { name: "Overdue", value: analyticsData.taxDetails.status.overdue },
-    { name: "Rejected", value: analyticsData.taxDetails.status.rejected },
-  ];
+  const taxStatus = analyticsData?.taxDetails?.status ? [
+    { name: "Paid", value: analyticsData.taxDetails.status.paid ?? 0 },
+    { name: "Pending", value: analyticsData.taxDetails.status.pending ?? 0 },
+    { name: "Overdue", value: analyticsData.taxDetails.status.overdue ?? 0 },
+    { name: "Rejected", value: analyticsData.taxDetails.status.rejected ?? 0 },
+  ] : null;
 
-  const programStatus = [
-    { name: "Active", value: analyticsData.programDetails.activePrograms },
-    { name: "Closed", value: analyticsData.programDetails.closedPrograms },
-  ];
+  const programStatus = analyticsData?.programDetails ? [
+    { name: "Active", value: analyticsData.programDetails.activePrograms ?? 0 },
+    { name: "Closed", value: analyticsData.programDetails.closedPrograms ?? 0 },
+  ] : null;
 
-  const applications = [
-    { name: "Pending", value: analyticsData.subsidyDetails.pendingApplications },
-    { name: "Approved", value: analyticsData.subsidyDetails.approvedApplications },
-    { name: "Rejected", value: analyticsData.subsidyDetails.rejectedApplications },
-    { name: "On Hold", value: analyticsData.subsidyDetails.onHoldCount },
-  ];
+  const applications = analyticsData?.subsidyDetails ? [
+    { name: "Pending", value: analyticsData.subsidyDetails.pendingApplications ?? 0 },
+    { name: "Approved", value: analyticsData.subsidyDetails.approvedApplications ?? 0 },
+    { name: "Rejected", value: analyticsData.subsidyDetails.rejectedApplications ?? 0 },
+    { name: "On Hold", value: analyticsData.subsidyDetails.onHoldCount ?? 0 },
+  ] : null;
 
-  const taxStats = [
-    { name: "Min Tax", value: analyticsData.taxDetails.revenue.lowestTax },
-    { name: "Avg Tax", value: analyticsData.taxDetails.revenue.averageTax },
-    { name: "Max Tax", value: analyticsData.taxDetails.revenue.highestTax },
-  ];
+  const taxStats = analyticsData?.taxDetails?.revenue ? [
+    { name: "Min Tax", value: analyticsData.taxDetails.revenue.lowestTax ?? 0 },
+    { name: "Avg Tax", value: analyticsData.taxDetails.revenue.averageTax ?? 0 },
+    { name: "Max Tax", value: analyticsData.taxDetails.revenue.highestTax ?? 0 },
+  ] : null;
 
-  const flow = [
-    { name: "Received", value: analyticsData.subsidyDetails.applicationsReceived },
-    { name: "Verified", value: analyticsData.subsidyDetails.verifiedCount },
-    { name: "Granted", value: analyticsData.subsidyDetails.grantedCount },
-    { name: "Cancelled", value: analyticsData.subsidyDetails.cancelledCount },
-  ];
+  const flow = analyticsData?.subsidyDetails ? [
+    { name: "Received", value: analyticsData.subsidyDetails.applicationsReceived ?? 0 },
+    { name: "Verified", value: analyticsData.subsidyDetails.verifiedCount ?? 0 },
+    { name: "Granted", value: analyticsData.subsidyDetails.grantedCount ?? 0 },
+    { name: "Cancelled", value: analyticsData.subsidyDetails.cancelledCount ?? 0 },
+  ] : null;
 
   return (
-    <div className="container-fluid py-4">
-      <div className="row g-4">
-        {/* ✅ TAX STATUS */}
+    <div className="row g-4">
+      {taxStatus ? (
         <StatusCard
           title="Tax Compliance Status"
           listTitle="Tax Categorization"
@@ -98,23 +103,10 @@ const Dashboard = () => {
           ChartComponent={CustomPie}
           ListComponent={ValueList}
         />
-
-        <StatusCard
-          title="Program Status"
-          data={programStatus}
-          ChartComponent={CustomPie}
-          ListComponent={ValueList}
-        />
-
-        {/* APPLICATION STATUS */}
-        <StatusCard
-          title="Application Status"
-          data={applications}
-          ChartComponent={CustomPie}
-          ListComponent={ValueList}
-        />
-
-        {/* TAX STATISTICS */}
+      ) : (
+        <DataUnavailable title="Tax Compliance Status" />
+      )}
+      {taxStats ? (
         <StatusCard
           title="Tax Statistics"
           listTitle="Values"
@@ -122,8 +114,32 @@ const Dashboard = () => {
           ChartComponent={CustomBar}
           ListComponent={ValueList}
         />
+      ) : (
+        <DataUnavailable title="Tax Statistics" />
+      )}
+      {programStatus ? (
+        <StatusCard
+          title="Program Status"
+          data={programStatus}
+          ChartComponent={CustomPie}
+          ListComponent={ValueList}
+        />
+      ) : (
+        <DataUnavailable title="Program Status" />
+      )}
 
-        {/* PROCESS FLOW */}
+      {applications ? (
+        <StatusCard
+          title="Application Status"
+          data={applications}
+          ChartComponent={CustomPie}
+          ListComponent={ValueList}
+        />
+      ) : (
+        <DataUnavailable title="Application Status" />
+      )}
+
+      {flow ? (
         <StatusCard
           title="Process Flow"
           listTitle="Steps"
@@ -131,8 +147,9 @@ const Dashboard = () => {
           ChartComponent={CustomBar}
           ListComponent={ValueList}
         />
-
-      </div>
+      ) : (
+        <DataUnavailable title="Process Flow" />
+      )}
     </div>
   );
 };
