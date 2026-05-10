@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './DisplayOneRecord.css';
-import {StatusBadge,DetailCard,CitizenBusinessDetails,TaxDetails,SubsidyDetails,FundingProgramDetails,EmptyState,ComplianceService} from '../../../core/registry';
+import {EmptyState,ComplianceService, Loader,DetailCard,StatusBadge ,TaxDetails } from '../../../core/registry';
 const DisplayOneRecord = ({ record: propRecord }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -28,31 +28,14 @@ const DisplayOneRecord = ({ record: propRecord }) => {
       }
     } catch (err) {
       const apiMsg = err?.response?.data?.message || err?.message || 'Unknown error';
-      setErrorMsg(`Failed to fetch record: ${apiMsg}`);
+      setErrorMsg(apiMsg);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (!record) {
-    const title = errorMsg && errorMsg.includes('Not Found') ? 'Record Not Found' : (errorMsg && errorMsg.includes('Network') ? 'Network Error' : 'No Record');
-    const message = errorMsg || 'The requested record could not be found.';
-    const action = (
-      <div className="d-flex gap-2 justify-content-center">
-        <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>Back</button>
-        {id && <button className="btn btn-primary" onClick={() => fetchRecord(id)}>Retry</button>}
-      </div>
-    );
-    return (
-      <EmptyState
-        title={title}
-        message={message}
-        action={action}
-      />
-    );
-  }
-
+  if (loading) return <Loader/>;
+  if (!record) return <EmptyState   message={errorMsg} />
   return (
     <div className="record-container">
       <DetailCard
@@ -60,8 +43,7 @@ const DisplayOneRecord = ({ record: propRecord }) => {
         subtitle={`${record.type} • ${record.entityId}`}
         badge={<StatusBadge type="result" value={record.result} />}
         date={record.createdAt ? new Date(record.createdAt).toLocaleString() : ''}
-        onBack={() => navigate(-1)}
-        actions={<button className="btn btn-sm btn-primary" onClick={() => navigate(`/compliance/${record.complianceId}/edit`)}>Update</button>}
+       actions={<button className="btn btn-sm btn-primary" onClick={() => navigate(`/compliance/${record.complianceId}/edit`)}>Update</button>}
       >
         <div className="record-grid">
           <div className="field"><strong>Reference ID</strong><div>{record.referenceId}</div></div>
@@ -90,6 +72,6 @@ const DisplayOneRecord = ({ record: propRecord }) => {
       </DetailCard>
     </div>
   );
-};
 
+}
 export default DisplayOneRecord;

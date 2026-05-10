@@ -3,12 +3,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createAudit } from '../../redux/auditSlice';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-
+import { useCharacterLimit } from '../../hooks/roles/useCharacterLimit';
 const AuditCreate = () => {
+  const notesManager = useCharacterLimit('', 1000);
   const [form, setForm] = useState({ officerId: '5', scope: 'PROGRAM', findings: '' });
   const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
+ 
+ 
   const { loading } = useSelector((state) => state.audit);
 
   const handleSubmit = async (e) => {
@@ -23,7 +26,7 @@ const AuditCreate = () => {
       await dispatch(createAudit({
         officerId: Number(form.officerId),
         scope: form.scope,
-        findings: form.findings,
+        findings: notesManager.value,
       })).unwrap();
       toast.success('Audit record created successfully.');
       navigate('/audit/list');
@@ -64,9 +67,16 @@ const AuditCreate = () => {
               <label className="form-label">Findings</label>
               <textarea
                 className="form-control"
-                value={form.findings}
-                onChange={(e) => setForm({ ...form, findings: e.target.value })}
+                value={notesManager.value}
+                rows="3"
+                onChange={notesManager.handleChange}
+                style={{resize:"none"}}
               />
+              <div className="d-flex justify-content-end">
+                <small className={notesManager.isFull ? 'text-danger fw-bold' : 'text-muted'}>
+                  {notesManager.count} / {notesManager.limit} characters
+                </small>
+              </div>
               {errors.findings && <small className="text-danger">{errors.findings}</small>}
             </div>
             <button type="submit" className="btn btn-primary" disabled={loading}>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './DisplayOneAudit.css';
-import { StatusBadge, DetailCard, EmptyState } from '../../core/registry';
+import { StatusBadge, DetailCard, EmptyState, Loader } from '../../core/registry';
 import { getById } from '../../axios/roles/auditApi';
 
 const DisplayOneAudit = ({ audit: propAudit }) => {
@@ -30,28 +30,9 @@ const DisplayOneAudit = ({ audit: propAudit }) => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (!audit) {
-    const title = errorMsg && String(errorMsg).includes('Not Found')
-      ? 'Audit Not Found'
-      : errorMsg && String(errorMsg).toLowerCase().includes('network')
-      ? 'Network Error'
-      : 'No Audit';
-    const message = errorMsg || 'The requested audit record could not be found.';
-    const action = (
-      <div className="d-flex gap-2 justify-content-center">
-        <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>
-          Back
-        </button>
-        {id && (
-          <button className="btn btn-primary" onClick={() => fetchAudit(id)}>
-            Retry
-          </button>
-        )}
-      </div>
-    );
-    return <EmptyState title={title} message={message} action={action} />;
-  }
+  if (loading) return <Loader message='Loading audit record...'/>;
+  if (!audit) return <EmptyState message={errorMsg} />
+        
 
   return (
     <div className="audit-container">
