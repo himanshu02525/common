@@ -40,33 +40,13 @@ export { default as AuditService } from '../roles/GovernmentAuditor/AuditService
 export { default as AuditSummary } from '../roles/GovernmentAuditor/AuditSummary';
 
 // --- Reports & Analytics (Pages) ---
-export { default as AnalyticsDashboard } from '../roles/reportsAnalytics/pages/ReportsDashboard';
-export { default as ReportsDashboard } from '../roles/reportsAnalytics/pages/DisplayAllReports';
-export { default as ReportsDashboardPage } from '../roles/reportsAnalytics/pages/DisplayAllReports';
 export { default as ReportDetails } from '../roles/reportsAnalytics/pages/ReportDetails';
 export { default as ScopeReports } from '../roles/reportsAnalytics/pages/ScopeReports';
 export { default as CreateReport } from '../roles/reportsAnalytics/pages/CreateReport';
+export { default as ReportsDashboard } from '../roles/reportsAnalytics/pages/ReportsDashboard';
 
 // --- Reports & Analytics (Internal Components & Charts) ---
-export { default as AnalyticsOverview } from '../roles/reportsAnalytics/components/analytics/AnalyticsOverview';
-export { default as ProgramMetricsCard } from '../roles/reportsAnalytics/components/analytics/ProgramMetricsCard';
-export { default as SubsidyMetricsCard } from '../roles/reportsAnalytics/components/analytics/SubsidyMetricsCard';
-export { default as TaxMetricsCard } from '../roles/reportsAnalytics/components/analytics/TaxMetricsCard';
 export { default as MetricsGrid } from '../roles/reportsAnalytics/components/common/MetricsGrid';
-export { default as ReportsStatItem } from '../roles/reportsAnalytics/components/common/StatItem';
-
-// Charts
-export { default as DonutChart } from '../roles/reportsAnalytics/components/analytics/charts/DonutChart';
-export { default as Gauge } from '../roles/reportsAnalytics/components/analytics/charts/Gauge';
-export { default as HorizontalStackedBar } from '../roles/reportsAnalytics/components/analytics/charts/HorizontalStackedBar';
-export { default as KPIGauge } from '../roles/reportsAnalytics/components/analytics/charts/KPIGauge';
-export { default as KPIStatCard } from '../roles/reportsAnalytics/components/analytics/charts/KPIStatCard';
-export { default as PieChart } from '../roles/reportsAnalytics/components/analytics/charts/PieChart';
-export { default as ProgramStackedBar } from '../roles/reportsAnalytics/components/analytics/charts/ProgramStackedBar';
-export { default as StackedHorizontalBar } from '../roles/reportsAnalytics/components/analytics/charts/StackedHorizontalBar';
-export { default as StatusCard } from '../roles/reportsAnalytics/components/analytics/charts/StatusCard';
-export { default as SubsidyPie } from '../roles/reportsAnalytics/components/analytics/charts/SubsidyPie';
-export { default as TaxDonutChart } from '../roles/reportsAnalytics/components/analytics/charts/TaxDonutChart';
 
 // Report Management
 export { default as DisplayAllReports } from '../roles/reportsAnalytics/components/report/DisplayAllReports';
@@ -75,3 +55,12 @@ export { default as ReportsList } from '../roles/reportsAnalytics/components/rep
 export { default as ReportViewer } from '../roles/reportsAnalytics/components/report/ReportViewer';
 export { default as CreateReportForm } from '../roles/reportsAnalytics/components/generate/CreateReportForm';
 export { default as ScopeSelector } from '../roles/reportsAnalytics/components/generate/ScopeSelector';
+export { default as TaxMetricsCard } from '../roles/reportsAnalytics/components/report/TaxMetricsCard';
+export { default as ProgramMetricsCard } from '../roles/reportsAnalytics/components/report/ProgramMetricsCard';
+export { default as SubsidyMetricsCard } from '../roles/reportsAnalytics/components/report/SubsidyMetricsCard';
+
+// --- Reports & Analytics (Additional Components) ---
+export { default as AnalyticsDashboard } from '../roles/reportsAnalytics/pages/AnalyticsDashboard';
+export { default as Dashboard } from '../roles/reportsAnalytics/components/Dashboard';
+export { default as AnalyticsOverview } from '../roles/reportsAnalytics/components/AnalyticsOverview';
+export { default as StatusCard } from '../roles/reportsAnalytics/components/common/StatusCard';
