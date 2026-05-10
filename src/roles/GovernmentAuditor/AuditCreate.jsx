@@ -31,7 +31,7 @@ const AuditCreate = () => {
       toast.success('Audit record created successfully.');
       navigate('/audit/list');
     } catch (err) {
-      toast.error(err.message || 'Failed to create audit');
+      toast.error(err || 'Failed to create audit');
     }
   };
 
