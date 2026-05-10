@@ -49,8 +49,10 @@ const AuditEdit = () => {
       toast.success(typeof msg === 'string' ? msg : JSON.stringify(msg));
       navigate('/audit/list');
     } catch (err) {
-      console.error(err);
-      toast.error(err.message || 'Update failed');
+      const errorMsg = err.response?.data?.message || err.msg || 'Update failed';
+      console.log(errorMsg);
+      
+      toast.error(errorMsg || 'Update failed');
     }
   };
 
