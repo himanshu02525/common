@@ -47,7 +47,6 @@ export { default as ReportsDashboard } from '../roles/reportsAnalytics/pages/Rep
 
 // --- Reports & Analytics (Internal Components & Charts) ---
 export { default as MetricsGrid } from '../roles/reportsAnalytics/components/common/MetricsGrid';
-export { default as ReportsStatItem } from '../roles/reportsAnalytics/components/common/StatItem';
 
 // Report Management
 export { default as DisplayAllReports } from '../roles/reportsAnalytics/components/report/DisplayAllReports';
