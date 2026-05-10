@@ -11,9 +11,9 @@ export default function StatusCard({
 
   return (
     <div className="col-12 mb-4">
+   
       <div className="card shadow border-0 overflow-hidden" style={{ borderRadius: '12px' }}>
         <div className="row align-items-center g-0">
-          {/* Chart Section */}
           <div className="col-md-6 p-4 border-end">
             <h6 className="fw-bold text-secondary mb-3">{title}</h6>
             <div className="d-flex justify-content-center">
@@ -21,7 +21,6 @@ export default function StatusCard({
             </div>
           </div>
           
-          {/* List Section */}
           <div className="col-md-6 p-4 bg-light">
             <ListComponent title={listTitle} data={data} />
           </div>

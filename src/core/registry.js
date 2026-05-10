@@ -16,7 +16,8 @@ export { default as StatusBadge } from '../components/common/StatusBadge';
 export { default as StatItem } from '../components/ui/StatItem';
 export { default as RefetchButton } from '../components/ui/RefetchButton';
 export { default as CachedIcon } from '@mui/icons-material/Cached';
-export {default as BackButton} from '../components/common/compliance/BackButton'
+export {default as BackButton} from '../components/common/compliance/BackButton';
+export { default as DataUnavailable } from '../components/common/compliance/DataUnavailable';
 // --- Compliance Officer (Bharat Module 6) ---
 export { default as ComplianceDashboard } from '../roles/ComplianceOfficer/bharatModule6/ComplianceDashboard';
 export { default as ComplianceCreate } from '../roles/ComplianceOfficer/bharatModule6/ComplianceCreate';
