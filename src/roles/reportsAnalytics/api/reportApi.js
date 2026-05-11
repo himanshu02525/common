@@ -25,29 +25,32 @@ export async function getReportById(id) {
 }
 
 
-export async function generateReport(scope, extraParam, reportName) {
+export async function generateReport(scope, year = '', programId = '', reportName = '') {
   if (!scope) throw new Error('Scope is required');
 
-  let baseUrl = `${API_BASE}/reports/generate-by-scope`;
-  let queryParams = new URLSearchParams({ scope });
+  const baseUrl = `${API_BASE}/reports/generate-by-scope`;
+  const params = new URLSearchParams();
 
-  if (extraParam) {
-    if (scope === 'TAX') {
-      queryParams.append('year', extraParam);
-    } else if (scope === 'PROGRAM') {
-      queryParams.append('id', extraParam);
-    }
+  params.append('scope', scope);
+
+  if (scope === 'OVERALL') {
+    if (year) params.append('year', year);
+    if (programId) params.append('id', programId);
+  } 
+  else if (scope === 'TAX') {
+    if (year) params.append('year', year);
+  } 
+  else if (scope === 'PROGRAM') {
+    if (programId) params.append('id', programId);
   }
   if (reportName) {
-    queryParams.append('reportName', reportName);
+    params.append('reportName', reportName);
   }
-  console.log(`${baseUrl}?${queryParams.toString()}`);
 
-  const apiResponse = await fetch(`${baseUrl}?${queryParams.toString()}`, {
-    method: 'POST'
-  });
+  const url = `${baseUrl}?${params.toString()}`;
+  const response = await fetch(url, { method: 'POST' });
 
-  return parseApiResponse(apiResponse);
+  return parseApiResponse(response);
 }
 
 export async function fetchAll() {

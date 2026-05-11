@@ -23,7 +23,8 @@ import {
   ScopeReports,
   CreateReport,
   ReportsDashboard,
-  AnalyticsDashboard
+  AnalyticsDashboard,
+  ReportVisualizer
 } from './core/registry'; 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
           <Route path="/reports/analytics" element={<AnalyticsDashboard />} />
           <Route path="/reports/scope/:scope" element={<ScopeReports />} />
           <Route path="/reports/:id" element={<ReportDetails />} />
+          <Route path="/reports/analytics/:id" element={<ReportVisualizer/>} />
         </Routes>
       </Layout>
       <ToastContainer

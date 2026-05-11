@@ -19,6 +19,7 @@ export { default as CachedIcon } from '@mui/icons-material/Cached';
 export {default as BackButton} from '../components/common/compliance/BackButton';
 export { default as DataUnavailable } from '../components/common/compliance/DataUnavailable';
 export {default as CharacterAllow} from '../components/common/compliance/CharacterAllow';
+export {default as BootstrapSwitch} from '../components/ui/BootstrapSwitch';
 // --- Compliance Officer (Bharat Module 6) ---
 export { default as ComplianceDashboard } from '../roles/ComplianceOfficer/bharatModule6/ComplianceDashboard';
 export { default as ComplianceCreate } from '../roles/ComplianceOfficer/bharatModule6/ComplianceCreate';
@@ -49,7 +50,8 @@ export { default as ReportsDashboard } from '../roles/reportsAnalytics/pages/Rep
 
 // --- Reports & Analytics (Internal Components & Charts) ---
 export { default as MetricsGrid } from '../roles/reportsAnalytics/components/common/MetricsGrid';
-
+export {default as ReportAnalytics} from '../roles/reportsAnalytics/components/ReportAnalytics'
+export {default as ReportVisualizer} from '../roles/reportsAnalytics/pages/ReportVisualizer'
 // Report Management
 export { default as DisplayAllReports } from '../roles/reportsAnalytics/components/report/DisplayAllReports';
 export { default as ReportCard } from '../roles/reportsAnalytics/components/report/ReportCard';
@@ -65,4 +67,4 @@ export { default as SubsidyMetricsCard } from '../roles/reportsAnalytics/compone
 export { default as AnalyticsDashboard } from '../roles/reportsAnalytics/pages/AnalyticsDashboard';
 export { default as Dashboard } from '../roles/reportsAnalytics/components/Dashboard';
 export { default as AnalyticsOverview } from '../roles/reportsAnalytics/components/AnalyticsOverview';
-export { default as StatusCard } from '../roles/reportsAnalytics/components/common/StatusCard';
+export { default as StatusCard } from '../components/common/report/StatusCard';

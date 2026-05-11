@@ -1,9 +1,6 @@
 import React from 'react';
 import { CreateReportForm } from '../../../core/registry';
-import { useNavigate } from 'react-router-dom';
-
 export default function CreateReport() {
-  const navigate = useNavigate();
 
   return (
     <div className="container py-4">
@@ -13,7 +10,7 @@ export default function CreateReport() {
 
       <div className="card shadow-sm">
         <div className="card-body">
-          <CreateReportForm defaultScope={undefined} onSuccess={() => navigate('/reports')} />
+          <CreateReportForm  />
         </div>
        
       </div>
