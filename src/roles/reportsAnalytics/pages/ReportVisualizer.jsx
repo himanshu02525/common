@@ -5,6 +5,7 @@ import { useReportDetails } from '../hooks/useReportDetails';
 export default function ReportVisualizer() {
     const { id } = useParams();
     const { reportDetails, isLoading, loadError } = useReportDetails(id);
+console.log(reportDetails);
 
     return (
         <div className="container py-4">

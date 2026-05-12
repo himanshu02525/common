@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import ComplianceService from './ComplianceService';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './DisplayAllCompliance.css';
-import { SearchBar, StatusBadge, RecordsTable, EmptyState, Loader,RefetchButton,DetailCard } from '../../../core/registry';
-import useCompliance from '../../../hooks/roles/useCompliance';
+import { SearchBar, StatusBadge, RecordsTable, EmptyState, Loader,RefetchButton } from '../../../core/registry';
+import useCompliance from '../../../hooks/complianceaudits/useCompliance';
 const DisplayAllCompliance = () => {
   const [filterText, setFilterText] = useState('');
   const navigate = useNavigate();
@@ -14,19 +13,6 @@ const DisplayAllCompliance = () => {
   useEffect(() => {
     loadList();
   }, [loadList]);
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this record?')) return;
-    try {
-      const res = await ComplianceService.delete(id);
-      const msg = (res && (res.data || res.data === '') ? res.data : 'Compliance deleted');
-      toast.success(typeof msg === 'string' ? msg : JSON.stringify(msg));
-      complianceHook.loadList();
-    } catch (err) {
-      const msg = err?.response?.data?.message || 'Failed to delete compliance record';
-      toast.error(typeof msg === 'string' ? msg : 'Failed to delete compliance record');
-    }
-  };
 
   // Client-side filtering + sorting helpers
   const getValueByKey = (obj, key) => {

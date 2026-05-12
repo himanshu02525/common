@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import useReportDetails from '../hooks/useReportDetails';
-import { EmptyState, ReportViewer } from '../../../core/registry';
+import { BackButton, EmptyState, ReportViewer } from '../../../core/registry';
 
 export default function ReportDetails() {
   const { id: routeReportId } = useParams();
@@ -18,6 +18,7 @@ export default function ReportDetails() {
 
   return (
     <div className="container py-4">
+      <BackButton />
       <div className="card shadow-sm">
         <div className="card-body">
           <h4 className="mb-2">Report ID : {safeReport.reportId || 'N/A'}</h4>

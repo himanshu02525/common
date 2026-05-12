@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './DisplayOneRecord.css';
-import {EmptyState,ComplianceService, Loader,DetailCard,StatusBadge ,TaxDetails } from '../../../core/registry';
+import { fetchComplianceRecordById } from '../../../redux/complianceOfficerSlice';
+import {EmptyState, Loader,DetailCard,StatusBadge ,TaxDetails } from '../../../core/registry';
 const DisplayOneRecord = ({ record: propRecord }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const DisplayOneRecord = ({ record: propRecord }) => {
   const fetchRecord = async (rid) => {
     setLoading(true);
     try {
-      const res = await ComplianceService.getById(rid);
+      const res = await fetchComplianceRecordById(rid);
       if (!res || !res.data) {
         setErrorMsg(`No data returned from API for id=${rid}`);
         setRecord(null);

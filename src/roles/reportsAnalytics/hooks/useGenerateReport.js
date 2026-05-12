@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import * as api from '../api/reportApi';
+import {generateReport}  from '../../../axios/reportsAnalyticsApi';
 
 export function useGenerateReport() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState(null);
 
-  async function generateReportForScope(scope, year, programId, reportName) {
+  async function generateReport(scope, year, programId, reportName) {
   if (!scope) throw new Error('Scope required');
 
   setIsGenerating(true);
@@ -22,7 +22,7 @@ export function useGenerateReport() {
   }
 }
 
-  return { generate: generateReportForScope, isGenerating, generateError };
+  return { generate: generateReport, isGenerating, generateError };
 }
 
 export default useGenerateReport;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Loader, CreateReportForm, EmptyState, ReportsList, RefetchButton } from '../../../core/registry';
-import { fetchAll } from '../api/reportApi';
+import { Loader, EmptyState, ReportsList, RefetchButton } from '../../../core/registry';
+import { fetchAllReports } from '../../../redux/reportsAnalyticsSlice'; 
 
 function ReportsDashboard() {
   const [allReports, setAllReports] = useState(null);
@@ -11,7 +11,7 @@ function ReportsDashboard() {
     setIsLoadingReports(true);
     setLoadError(null);
     try {
-      const responsePayload = await fetchAll();
+      const responsePayload = await fetchAllReports();
       const normalizedList = Array.isArray(responsePayload)
         ? responsePayload
         : responsePayload?.reports ?? responsePayload?.items ?? [];

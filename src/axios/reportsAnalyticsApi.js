@@ -1,26 +1,27 @@
-import axios from 'axios';
+import apiClient from "./apiClient";
 
-const API_BASE = 'http://localhost:8087';
-
-export const fetchAnalytics = async () => {
-  const response = await axios.get(`${API_BASE}/reports/analytics`);
+// Renamed to getAnalytics to match your thunk usage
+export const getAnalytics = async () => {
+  const response = await apiClient.get("/reports/analytics");
   return response.data;
 };
 
 export const fetchReportById = async (id) => {
-  if (!id) throw new Error('Report ID is required');
-  const response = await axios.get(`${API_BASE}/reports/${id}`);
+  if (!id) throw new Error("Report ID is required");
+  const response = await apiClient.get(`/reports/${id}`);
   return response.data;
 };
 
-export const fetchReportsByScope = async (scope) => {
-  if (!scope) throw new Error('Scope is required');
-  const response = await axios.get(`${API_BASE}/reports/scope/${scope}`);
+export const fetchAll = async () => {
+  const response = await apiClient.get(`/reports`);
   return response.data;
 };
+
 
 export const generateReport = async (scope) => {
-  if (!scope) throw new Error('Scope is required');
-  const response = await axios.post(`${API_BASE}/reports/generate`, { scope });
+  if (!scope) throw new Error("Scope is required");
+  const response = await apiClient.post("/reports/generate-by-scope", null, { 
+    params: { scope } 
+  });
   return response.data;
 };

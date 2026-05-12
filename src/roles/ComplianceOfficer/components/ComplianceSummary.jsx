@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { summary as fetchComplianceSummary } from '../../../axios/roles/complianceApi';
+import { getComplianceSummary } from '../../../redux/complianceOfficerSlice';
 
 const ComplianceSummary = () => {
   const [summary, setSummary] = useState({});
@@ -8,7 +8,7 @@ const ComplianceSummary = () => {
 
   const fetchSummary = async () => {
     try {
-      const res = await fetchComplianceSummary();
+      const res = getComplianceSummary();
       setSummary(res || {});
     } catch (err) { console.error(err); }
   };

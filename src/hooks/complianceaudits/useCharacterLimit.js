@@ -1,11 +1,6 @@
 import { useState } from 'react';
 
-/**
- * Custom hook to manage text inputs with a hard character limit
- * @param {string} initialValue - Initial text
- * @param {number} limit - Maximum allowed characters
- */
-export const useCharacterLimit = (initialValue = '', limit = 255) => {
+const useCharacterLimit = (initialValue = '', limit = 255) => {
   const [value, setValue] = useState(initialValue);
 
   const handleChange = (e) => {
@@ -19,7 +14,7 @@ export const useCharacterLimit = (initialValue = '', limit = 255) => {
 
   return {
     value,
-    setValue, 
+    setValue,
     handleChange,
     reset,
     count: value.length,
@@ -27,3 +22,5 @@ export const useCharacterLimit = (initialValue = '', limit = 255) => {
     limit
   };
 };
+
+export default useCharacterLimit;

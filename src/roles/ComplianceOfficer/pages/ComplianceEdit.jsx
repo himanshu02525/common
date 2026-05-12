@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { EmptyState, Loader } from '../../../core/registry';
-import useCompliance from '../../../hooks/roles/useCompliance';
+import { EmptyState, Loader ,useCompliance} from '../../../core/registry';
 import { useDispatch } from 'react-redux';
 import { updateComplianceRecord } from '../../../redux/complianceOfficerSlice';
 

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import * as complianceApi from '../axios/roles/complianceApi';
+import * as complianceApi from '../axios/complianceApi';
 
 // Async Thunks
 export const fetchComplianceRecords = createAsyncThunk(

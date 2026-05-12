@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { EmptyState, Loader, ReportsList } from '../../../../core/registry';
-import { fetchAll } from '../../api/reportApi';
+import { fetchAllReports } from '../../../../redux/reportsAnalyticsSlice';
 
 function DisplayAllReports() {
   const [allReports, setAllReports] = useState(null);
@@ -12,14 +12,14 @@ function DisplayAllReports() {
     async function loadReports() {
       setIsLoadingReports(true);
       try {
-        const responsePayload = await fetchAll();
+        const responsePayload = await fetchAllReports();
         if (!mounted) return;
         const normalizedList = Array.isArray(responsePayload)
           ? responsePayload
           : responsePayload?.reports ?? responsePayload?.items ?? [];
         setAllReports(normalizedList);
       } catch (err) {
-        console.error('fetchAll failed', err);
+        console.error('fetchAllReports failed', err);
         if (!mounted) return;
         setLoadError(err.message || String(err));
       } finally {

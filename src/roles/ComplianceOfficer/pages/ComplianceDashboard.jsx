@@ -10,7 +10,10 @@ const ComplianceDashboard = () => {
   useEffect(() => {
     dispatch(fetchComplianceRecords());
   }, [dispatch]);
-
+  
+useEffect(() => {
+    fetchComplianceRecords();
+  }, []);
   if (loading) return <Loader message="Loading compliance..." />;
 
   return (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import * as api from '../api/reportApi';
+import {fetchReportById as api} from '../../../axios/reportsAnalyticsApi';
 import { parseMetrics } from '../utils/parseMetrics';
 
 export function useReportDetails(reportId) {
@@ -20,7 +20,7 @@ export function useReportDetails(reportId) {
     let isMounted = true;
     setIsLoading(true);
 
-    api.getReportById(reportId)
+    api.fetchReportById(reportId)
       .then((responsePayload) => {
         if (!isMounted) return;
         setReportDetails(responsePayload);

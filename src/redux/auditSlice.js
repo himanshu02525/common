@@ -1,75 +1,73 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import * as auditApi from '../axios/roles/auditApi';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import * as auditApi from "../axios/auditApi";
 
-// Async Thunks
 export const fetchAudits = createAsyncThunk(
-  'audit/fetchAudits',
+  "audit/fetchAudits",
   async (_, { rejectWithValue }) => {
     try {
-      const data = await auditApi.getAll();
-      return data || [];
+      return await auditApi.getAll();
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Failed to load audits';
-      return rejectWithValue(msg);
+      return rejectWithValue(
+        err?.response?.data?.message || err?.message
+      );
     }
   }
 );
 
 export const fetchAuditById = createAsyncThunk(
-  'audit/fetchAuditById',
+  "audit/fetchAuditById",
   async (id, { rejectWithValue }) => {
     try {
-      const data = await auditApi.getById(id);
-      return data || null;
+      return await auditApi.getById(id);
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Failed to load audit';
-      return rejectWithValue(msg);
+      return rejectWithValue(
+        err?.response?.data?.message || err?.message
+      );
     }
   }
 );
 
 export const createAudit = createAsyncThunk(
-  'audit/createAudit',
-  async (auditData, { rejectWithValue }) => {
+  "audit/createAudit",
+  async (data, { rejectWithValue }) => {
     try {
-      const data = await auditApi.create(auditData);
-      return data;
+      return await auditApi.create(data);
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Failed to create audit';
-      return rejectWithValue(msg);
+      return rejectWithValue(
+        err?.response?.data?.message || err?.message
+      );
     }
   }
 );
 
 export const updateAudit = createAsyncThunk(
-  'audit/updateAudit',
-  async ({ id, ...changes }, { rejectWithValue }) => {
+  "audit/updateAudit",
+  async ({ id, ...data }, { rejectWithValue }) => {
     try {
-      const data = await auditApi.update(id, changes);
-      return data;
+      return await auditApi.update(id, data);
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Failed to update audit';
-      return rejectWithValue(msg);
+      return rejectWithValue(
+        err?.response?.data?.message || err?.message
+      );
     }
   }
 );
 
 export const getAuditSummary = createAsyncThunk(
-  'audit/getAuditSummary',
+  "audit/getAuditSummary",
   async (_, { rejectWithValue }) => {
     try {
-      const data = await auditApi.getSummary(); 
-      return data || {};
+      return await auditApi.getSummary();
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Failed to load audit summary';
-      return rejectWithValue(msg);
+      return rejectWithValue(
+        err?.response?.data?.message || err?.message
+      );
     }
   }
 );
 
-// Slice
 const auditSlice = createSlice({
-  name: 'audit',
+  name: "audit",
   initialState: {
     audits: [],
     selected: null,
@@ -77,12 +75,7 @@ const auditSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {
-    clearSelected(state) {
-      state.selected = null;
-      state.error = null;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchAudits.pending, (state) => {
@@ -95,36 +88,21 @@ const auditSlice = createSlice({
       })
       .addCase(fetchAudits.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || action.error.message;
-      })
-      .addCase(fetchAuditById.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.selected = null;
+        state.error = action.payload;
       })
       .addCase(fetchAuditById.fulfilled, (state, action) => {
-        state.loading = false;
         state.selected = action.payload;
       })
-      .addCase(fetchAuditById.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.selected = null;
-      })
-      .addCase(createAudit.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
       .addCase(createAudit.fulfilled, (state, action) => {
-        state.loading = false;
         state.audits.push(action.payload);
       })
-      .addCase(createAudit.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
+      .addCase(updateAudit.fulfilled, (state, action) => {
+        const i = state.audits.findIndex(
+          (a) => a.auditId === action.payload.auditId
+        );
+        if (i !== -1) state.audits[i] = action.payload;
       });
   },
 });
 
-export const { clearSelected } = auditSlice.actions;
 export default auditSlice.reducer;

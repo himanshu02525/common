@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Modal } from '../../../components/common/Modal';
-import { RecordsTable, StatusBadge } from '../../../core/registry';
+import { Modal } from '../../../../components/common/Modal';
+import { RecordsTable, StatusBadge } from '../../../../core/registry';
 import { useDispatch } from 'react-redux';
-import { deleteComplianceRecord } from '../../../redux/complianceOfficerSlice';
+import { deleteComplianceRecord } from '../../../../redux/complianceOfficerSlice';
 
 const ComplianceTable = ({ records = [], loading = false, onRefresh }) => {
   const [selected, setSelected] = useState(null);

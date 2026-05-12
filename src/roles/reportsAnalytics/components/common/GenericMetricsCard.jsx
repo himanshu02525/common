@@ -17,7 +17,7 @@ const GenericMetricsCard = ({ data, title = "Metrics Overview", generatedAt }) =
         if (k.includes('tax') || k.includes('revenue') || k.includes('amount') || k.includes('budget')) {
             return new Intl.NumberFormat('en-US', { 
                 style: 'currency', 
-                currency: 'USD', 
+                currency: 'INR', 
                 maximumFractionDigits: 0 
             }).format(value);
         }

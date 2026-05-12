@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import useGenerateReport from '../../hooks/useGenerateReport';
-import { CharacterAllow, ScopeSelector, BootstrapSwitch } from '../../../../core/registry';
-import { useCharacterLimit } from '../../../../hooks/roles/useCharacterLimit';
+import { CharacterAllow, ScopeSelector, BootstrapSwitch ,useCharacterLimit} from '../../../../core/registry';
 
 const FIELD_STYLE = {
   height: '38px',

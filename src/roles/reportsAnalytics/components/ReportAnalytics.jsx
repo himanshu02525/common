@@ -1,157 +1,139 @@
 import React from 'react';
-import { 
-  PieChart, Pie, Cell, ResponsiveContainer, 
-  BarChart, Bar, XAxis, YAxis, Tooltip, Legend 
+import {
+  PieChart, Pie, Cell, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, Tooltip
 } from 'recharts';
-import {StatusCard} from '../../../core/registry'; 
-// Helper to transform objects like {"paid": 10} to [{name: "paid", value: 10}]
-const transformToArr = (obj) => 
-  Object.entries(obj).map(([name, value]) => ({ name, value }));
+
+const transformToArr = (record) =>
+  Object.entries(record || {}).map(([name, value]) => ({ name, value }));
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-// --- Reusable Chart Components ---
+const SimplePieChart = ({ record }) => {
+  const data = transformToArr(record);
 
-const SimplePieChart = ({ data }) => (
-  <ResponsiveContainer width="100%" height={200}>
-    <PieChart>
-      <Pie data={transformToArr(data)} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-        {transformToArr(data).map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-        ))}
-      </Pie>
-      <Tooltip />
-    </PieChart>
-  </ResponsiveContainer>
-);
+  return (
+    <ResponsiveContainer width="100%" height={200}>
+      <PieChart>
+        <Pie data={data} dataKey="value">
+          {data.map((_, index) => (
+            <Cell key={index} fill={COLORS[index % COLORS.length]} />
+          ))}
+        </Pie>
+        <Tooltip />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+};
 
-const SimpleBarChart = ({ data }) => (
-  <ResponsiveContainer width="100%" height={200}>
-    <BarChart data={transformToArr(data)}>
-      <XAxis dataKey="name" fontSize={12} />
-      <YAxis fontSize={12} />
-      <Tooltip />
-      <Bar dataKey="value" fill="#8884d8" radius={[4, 4, 0, 0]} />
-    </BarChart>
-  </ResponsiveContainer>
-);
+const SimpleBarChart = ({ record }) => {
+  const data = Object.entries(record || {}).map(([name, value]) => ({
+    name,
+    value
+  }));
 
-// --- Generic List Component ---
+  return (
+    <ResponsiveContainer width="100%" height={250}>
+      <BarChart data={data}>
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Bar dataKey="value" fill="#8884d8" />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+};
 
-const DataList = ({ title, data }) => (
+const recordList = ({ title, record }) => (
   <div>
-    <h6 className="text-muted small text-uppercase mb-3">{title}</h6>
-    <ul className="list-group list-group-flush bg-transparent">
-      {Object.entries(data).map(([key, val]) => (
-        <li key={key} className="list-group-item bg-transparent d-flex justify-content-between px-0 py-2 border-light">
-          <span className="text-capitalize text-secondary">{key.replace(/([A-Z])/g, ' $1')}</span>
-          <span className="fw-bold">{typeof val === 'object' ? '---' : val.toLocaleString()}</span>
+    <h6>{title}</h6>
+    <ul>
+      {Object.entries(record || {}).map(([key, val]) => (
+        <li key={key}>
+          {key}: {typeof val === 'object' ? '-' : val}
         </li>
       ))}
     </ul>
   </div>
 );
 
-// --- Main Dynamic Component ---
-
-export default function ReportAnalytics({ record }) {
-  
-  if (!record) return <div className="alert alert-info">Select a report to view analytics.</div>;
-
-  const { scope, metrics: rawMetrics } = record;
-  
-  const metrics = typeof rawMetrics === 'string' ? JSON.parse(rawMetrics) : rawMetrics;
-  console.log(typeof rawMetrics);
-  console.log(record);
-  
-  /**
-   * Logic to determine which sections to render based on Scope
-   */
-  const {subsidySummary}=metrics;
-
-  console.log("subsidySummary"+subsidySummary);
-  
-  const renderSections = () => {
-    const cards = [];
-
-    // 1. Handle Tax Scoped Data
-    if (metrics.status) {
-      cards.push(
-        <StatusCard 
-          key="tax-status"
-          title="Tax Payment Status"
-          data={metrics.status}
-          ChartComponent={SimplePieChart}
-          ListComponent={DataList}
-          listTitle="Payment Breakdown"
-        />
-      );
-    }
-
-    if (metrics.revenue) {
-      cards.push(
-        <StatusCard 
-          key="tax-rev"
-          title="Revenue Analysis"
-          data={metrics.revenue}
-          ChartComponent={SimpleBarChart}
-          ListComponent={DataList}
-          listTitle="Financial Metrics"
-        />
-      );
-    }
-
-    // 2. Handle Program Scoped Data
-    if (metrics.programDetails) {
-        // If it's the specific program object from entry #4
-        const detail = metrics.programDetails;
-        cards.push(
-            <StatusCard 
-              key="prog-detail"
-              title={`Program: ${detail.title || 'Overview'}`}
-              data={{ 
-                  Budget: detail.budget, 
-                  Remaining: detail.remainingAmount || metrics.totalBudget,
-                  Utilized: detail.approvedAmount || 0 
-              }}
-              ChartComponent={SimplePieChart}
-              ListComponent={DataList}
-            />
-        );
-    }
-
-    // 3. Handle Subsidy Scoped Data
-    if (metrics.subsidyStatusDistribution || (metrics.subsidyDetails && metrics.subsidyDetails.onHoldCount)) {
-        const subData = metrics.subsidyDetails || metrics;
-        cards.push(
-            <StatusCard 
-              key="subsidy-flow"
-              title="Subsidy Distribution"
-              data={subData.subsidyStatusDistribution || {
-                  OnHold: subData.onHoldCount,
-                  Granted: subData.grantedCount,
-                  Verified: subData.verifiedCount,
-                  Cancelled: subData.cancelledCount
-              }}
-              ChartComponent={SimpleBarChart}
-              ListComponent={DataList}
-            />
-        );
-    }
-
-    return cards;
-  };
+function StatusCard({ title, record, ChartComponent, ListComponent }) {
+  if (!record) return null;
 
   return (
-    <div className="container-fluid py-4">
-      <div className="mb-4">
-        <h4 className="fw-bold">{record.report_name}</h4>
-        <span className="badge bg-primary">{scope}</span>
-        <small className="text-muted ms-3">{record.generated_date}</small>
-      </div>
-      <div className="row">
-        {renderSections()}
-      </div>
+    <div style={{ marginBottom: 20, border: '1px solid #ddd', padding: 20 }}>
+      <h4>{title}</h4>
+      <ChartComponent record={record} />
+      <ListComponent title="Details" record={record} />
+    </div>
+  );
+}
+
+function generateCards(obj) {
+  const cards = [];
+
+  function traverse(record, parent = "") {
+    for (let key in record) {
+      const value = record[key];
+
+      if (typeof value === "object" && value !== null) {
+        let isLeaf = true;
+
+        for (let k in value) {
+          if (typeof value[k] === "object") {
+            isLeaf = false;
+            break;
+          }
+        }
+
+        if (isLeaf) {
+          cards.push({
+            title: parent ? `${parent} → ${key}` : key,
+            record: value
+          });
+        }
+
+        traverse(value, parent ? `${parent}.${key}` : key);
+      }
+    }
+  }
+
+  traverse(obj);
+  return cards;
+}
+
+export default function ReportAnalytics({ record }) {
+  console.log(record);
+  
+  if (!record) return <div>No Data</div>;
+
+  let parsed = {};
+
+  try {
+    parsed = typeof record.metrics === "string"
+      ? JSON.parse(record.metrics)
+      : record.metrics || {};
+  } catch {
+    return <div>Invalid JSON</div>;
+  }
+
+  const cards = generateCards(parsed);
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h2>{record.report_name || "Report"}</h2>
+      <p>{record.scope}</p>
+      <p>{record.generated_date}</p>
+
+      {cards.map((card, i) => (
+        <StatusCard
+          key={i}
+          title={card.title}
+          record={card.record}
+          ChartComponent={SimpleBarChart}
+          ListComponent={recordList}
+        />
+      ))}
     </div>
   );
 }
