@@ -41,3 +41,13 @@ export const findByEntityId = async (entityId) => {
   const res = await apiClient.get(`/compliance/entity/${entityId}`);
   return res.data;
 };
+const complianceApi = {
+  getAll,
+  getById,
+  create,
+  update,
+  remove,
+  getSummary,
+  findByEntityId
+};
+export default complianceApi;

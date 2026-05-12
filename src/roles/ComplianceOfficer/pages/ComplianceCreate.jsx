@@ -1,30 +1,30 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
-import { createComplianceRecord } from '../../../redux/complianceOfficerSlice';
-import { useCharacterLimit } from '../../../core/registry';
+import * as complianceApi from "../../../axios/complianceApi";
 
 const ComplianceCreate = ({ onCreated, onCancel }) => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  const notesManager = useCharacterLimit('', 1000);
 
   const [complianceForm, setComplianceForm] = useState({
     entityId: '',
     referenceId: '',
-    complianceType: 'TAX',
+    type: 'TAX',
   });
+  const [notes, setNotes] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [formErrors, setFormErrors] = useState({});
 
   const getReferenceLabel = () => {
-    switch (complianceForm.complianceType) {
-      case 'TAX': return 'Tax ID';
-      case 'SUBSIDY': return 'Subsidy ID';
-      case 'PROGRAM': return 'Program ID';
-      default: return 'Reference ID';
+    switch (complianceForm.type) {
+      case 'TAX':
+        return 'Tax ID';
+      case 'SUBSIDY':
+        return 'Subsidy ID';
+      case 'PROGRAM':
+        return 'Program ID';
+      default:
+        return 'Reference ID';
     }
   };
 
@@ -43,29 +43,24 @@ const ComplianceCreate = ({ onCreated, onCancel }) => {
     if (!complianceForm.referenceId.trim()) {
       errors.referenceId = `${getReferenceLabel()} is required`;
     }
+    if (notes.length > 1000) {
+      errors.notes = 'Notes must not exceed 1000 characters';
+    }
 
     setFormErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
     setIsSaving(true);
     try {
-      const payload = {
-        entityId: Number(complianceForm.entityId),
-        referenceId: Number(complianceForm.referenceId),
-        type: complianceForm.complianceType,
-        notes: notesManager.value,
-      };
-
-      await dispatch(createComplianceRecord(payload)).unwrap();
+      await complianceApi.create({
+        ...complianceForm,
+        notes,
+      });
       toast.success('Compliance record created successfully.');
-
-      if (onCreated) {
-        onCreated();
-      } else {
-        navigate('/compliance/list');
-      }
-    } catch (error) {
-      toast.error(error || 'Failed to create compliance record');
+      if (onCreated) onCreated();
+      navigate('/compliance/list');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to create compliance record.');
     } finally {
       setIsSaving(false);
     }
@@ -79,8 +74,8 @@ const ComplianceCreate = ({ onCreated, onCancel }) => {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label className="form-label">
-                Entity ID <span className="text-danger">*</span>
+              <label className="form-label fw-bold small">
+                ENTITY ID <span className="text-danger">*</span>
               </label>
               <input
                 className={`form-control ${formErrors.entityId ? 'is-invalid' : ''}`}
@@ -97,11 +92,11 @@ const ComplianceCreate = ({ onCreated, onCancel }) => {
             </div>
 
             <div className="mb-3">
-              <label className="form-label">Compliance Type</label>
+              <label className="form-label fw-bold small">COMPLIANCE TYPE</label>
               <select
                 className="form-select"
-                value={complianceForm.complianceType}
-                onChange={(e) => handleInputChange('complianceType', e.target.value)}
+                value={complianceForm.type}
+                onChange={(e) => handleInputChange('type', e.target.value)}
               >
                 <option value="TAX">TAX</option>
                 <option value="SUBSIDY">SUBSIDY</option>
@@ -110,8 +105,8 @@ const ComplianceCreate = ({ onCreated, onCancel }) => {
             </div>
 
             <div className="mb-3">
-              <label className="form-label">
-                {getReferenceLabel()} <span className="text-danger">*</span>
+              <label className="form-label fw-bold small">
+                {getReferenceLabel().toUpperCase()} <span className="text-danger">*</span>
               </label>
               <input
                 className={`form-control ${formErrors.referenceId ? 'is-invalid' : ''}`}
@@ -128,20 +123,17 @@ const ComplianceCreate = ({ onCreated, onCancel }) => {
             </div>
 
             <div className="mb-3">
-              <label className="form-label">Notes</label>
+              <label className="form-label fw-bold small">NOTES</label>
               <textarea
-                className="form-control"
+                className={`form-control ${formErrors.notes ? 'is-invalid' : ''}`}
                 rows="3"
                 maxLength={1000}
-                value={notesManager.value}
-                onChange={notesManager.handleChange}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
                 style={{ resize: 'none' }}
+                placeholder="Optional notes..."
               />
-              <div className="d-flex justify-content-end">
-                <small className={notesManager.isFull ? 'text-danger fw-bold' : 'text-muted'}>
-                  {notesManager.count} / {notesManager.limit} characters
-                </small>
-              </div>
+              {formErrors.notes && <div className="invalid-feedback">{formErrors.notes}</div>}
             </div>
 
             <div className="d-flex justify-content-end gap-2 mt-4">
@@ -154,7 +146,7 @@ const ComplianceCreate = ({ onCreated, onCancel }) => {
               </button>
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="btn btn-primary px-4"
                 disabled={isSaving}
               >
                 {isSaving ? (

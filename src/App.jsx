@@ -20,8 +20,7 @@ import {
   ReportDetails,
   CreateReport,
   ReportsDashboard,
-  AnalyticsDashboard,
-  ReportVisualizer,AuditDetails
+  AnalyticsDashboard,AuditDetails
 } from './core/registry'; 
 function App() {
   return (
@@ -45,7 +44,6 @@ function App() {
           <Route path="/reports/create" element={<CreateReport />} />
           <Route path="/reports/analytics" element={<AnalyticsDashboard />} />
           <Route path="/reports/:id" element={<ReportDetails />} />
-          <Route path="/reports/analytics/:id" element={<ReportVisualizer/>} />
         </Routes>
       </Layout>
       <ToastContainer

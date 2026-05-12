@@ -1,26 +1,34 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchComplianceRecords } from '../../../redux/complianceOfficerSlice';
+import React, { useEffect, useState } from 'react';
+import * as complianceApi from "../../../axios/complianceApi";
 import { Loader, RefetchButton, ComplianceSummary } from '../../../core/registry';
 
 const ComplianceDashboard = () => {
-  const dispatch = useDispatch();
-  const { records, loading } = useSelector((state) => state.complianceOfficer);
+  const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchComplianceRecords = async () => {
+    setLoading(true);
+    try {
+      const data = await complianceApi.getAll();
+      setRecords(data || []);
+    } catch (error) {
+      console.error('Error fetching compliance records:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    dispatch(fetchComplianceRecords());
-  }, [dispatch]);
-  
-useEffect(() => {
     fetchComplianceRecords();
   }, []);
+
   if (loading) return <Loader message="Loading compliance..." />;
 
   return (
     <div className="container-fluid py-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h3>Compliance Dashboard</h3>
-        <RefetchButton onClick={() => dispatch(fetchComplianceRecords())} />
+        <h3 className="mb-0">Compliance Dashboard</h3>
+        <RefetchButton onClick={fetchComplianceRecords} />
       </div>
 
       <ComplianceSummary compliance={records} />

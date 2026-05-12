@@ -17,7 +17,6 @@ export default function ReportViewer({ scope, metrics = {} }) {
 
   return (
     <MetricsGrid>
-
       <Renderer />
     </MetricsGrid>
   );

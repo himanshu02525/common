@@ -2,56 +2,65 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './DisplayAllCompliance.css';
-import { SearchBar, StatusBadge, RecordsTable, EmptyState, Loader,RefetchButton } from '../../../core/registry';
-import useCompliance from '../../../hooks/complianceaudits/useCompliance';
+import { SearchBar, StatusBadge, RecordsTable, EmptyState, Loader, RefetchButton } from '../../../core/registry';
+import * as complianceApi from "../../../axios/complianceApi";
+
 const DisplayAllCompliance = () => {
   const [filterText, setFilterText] = useState('');
+  const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const complianceHook = useCompliance();
-  const { list: storeRecords, loading: storeLoading, error: storeError, loadList } = complianceHook;
-  useEffect(() => {
-    loadList();
-  }, [loadList]);
-
-  // Client-side filtering + sorting helpers
-  const getValueByKey = (obj, key) => {
-    if (!key) return undefined;
-    return key.split('.').reduce((o, k) => (o ? o[k] : undefined), obj);
+  const loadRecords = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await complianceApi.getAll();
+      setRecords(data || []);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to load compliance records.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-
+  useEffect(() => {
+    loadRecords();
+  }, []);
 
   const displayedRecords = useMemo(() => {
-    let filtered = storeRecords || [];
+    let filtered = records || [];
     if (filterText && filterText.trim() !== '') {
       const s = filterText.toLowerCase();
-      filtered = filtered.filter((r) => Object.values(r).some((v) => String(v || '').toLowerCase().includes(s)));
+      filtered = filtered.filter((r) =>
+        Object.values(r).some((v) => String(v || '').toLowerCase().includes(s))
+      );
     }
     return filtered;
-  }, [storeRecords, filterText]);
+  }, [records, filterText]);
 
   return (
     <div>
       <div className="d-flex justify-content-end align-items-end mb-3">
-        <RefetchButton onClick={loadList} />
+        <RefetchButton onClick={loadRecords} />
       </div>
       <SearchBar
         value={filterText}
         onChange={(e) => setFilterText(e.target.value)}
-        onClear={() => { setFilterText(''); loadList(); }}
-        onSubmit={() => { /* filtering is live; kept for compatibility */ }}
+        onClear={() => {
+          setFilterText('');
+          loadRecords();
+        }}
+        onSubmit={() => {}}
         placeholder="Search compliance records..."
       />
 
-      {storeLoading && <Loader message="Loading compliance records..." />}
-      {!storeLoading && storeError && (
-        <EmptyState title="Failed to load records" message={String(storeError)} />
+      {loading && <Loader message="Loading compliance records..." />}
+      {!loading && error && (
+        <EmptyState title="Failed to load records" message={String(error)} />
       )}
-      {!storeLoading && !storeError && (!storeRecords || storeRecords.length === 0) && (
-        <EmptyState title="No records" message="No compliance records were returned by the server." />
-      )}
-      {!storeLoading && !storeError && storeRecords && storeRecords.length > 0 && (
+      {!loading && !error && (
         <RecordsTable
           data={displayedRecords}
           columns={[
@@ -71,7 +80,6 @@ const DisplayAllCompliance = () => {
           ]}
         />
       )}
-
     </div>
   );
 };

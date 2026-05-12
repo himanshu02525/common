@@ -1,35 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { EmptyState, Loader ,useCompliance} from '../../../core/registry';
-import { useDispatch } from 'react-redux';
-import { updateComplianceRecord } from '../../../redux/complianceOfficerSlice';
+import { EmptyState, Loader } from '../../../core/registry';
+import * as complianceApi from "../../../axios/complianceApi";
 
 const ComplianceEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [record, setRecord] = useState(null);
   const [form, setForm] = useState({ result: 'PENDING', notes: '' });
   const [errors, setErrors] = useState({});
-
-  const complianceHook = useCompliance();
-  const { selected, loading: hookLoading, error: hookError, loadById } = complianceHook;
-
-  useEffect(() => {
-    if (id) loadById(id);
-  }, [id, loadById]);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    if (selected) {
-      setRecord(selected);
-      setForm({ result: selected.result || 'PENDING', notes: selected.notes || '' });
-      setErrors({});
-    } else if (hookError) {
-      setRecord(null);
-      setErrors((e) => ({ ...e, fetch: hookError }));
+    if (id) {
+      loadComplianceById(id);
     }
-  }, [selected, hookError]);
+  }, [id]);
+
+  const loadComplianceById = async (complianceId) => {
+    setLoading(true);
+    try {
+      const data = await complianceApi.getById(complianceId);
+      if (data) {
+        setRecord(data);
+        setForm({
+          result: data.result || 'PENDING',
+          notes: data.notes || '',
+        });
+      } else {
+        setErrorMsg('Compliance record not found.');
+      }
+    } catch (err) {
+      setErrorMsg(err.response?.data?.message || 'Failed to load compliance record.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const validate = () => {
     const err = {};
@@ -43,35 +51,31 @@ const ComplianceEdit = () => {
     e.preventDefault();
     if (!validate()) return;
     try {
-      await dispatch(updateComplianceRecord({ id, ...form })).unwrap();
+      setLoading(true);
+      await complianceApi.update(id, form);
       toast.success('Compliance record updated successfully.');
       navigate('/compliance/list');
     } catch (err) {
-      toast.error(err || 'Update failed');
+      toast.error(err.response?.data?.message || 'Update failed.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (hookLoading) return <Loader />;
-  if (!record) {
-    const fetchMsg = errors.fetch || hookError || '';
-    return (
-      <EmptyState
-        title={fetchMsg.toLowerCase().includes('not found') ? 'Record Not Found' : 'No record'}
-        message={fetchMsg || 'The requested record could not be loaded.'}
-      />
-    );
-  }
+  if (loading) return <Loader />;
+  if (errorMsg) return <EmptyState message={errorMsg} />;
+  if (!record) return null;
 
   return (
     <div className="container py-3">
-      <div className="card">
+      <div className="card shadow-sm">
         <div className="card-body">
-          <h5>Edit Compliance #{record.complianceId}</h5>
+          <h5 className="mb-4">Edit Compliance #{record.complianceId}</h5>
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label className="form-label">Result</label>
+              <label className="form-label fw-bold small">RESULT</label>
               <select
-                className="form-select"
+                className={`form-select ${errors.result ? 'is-invalid' : ''}`}
                 value={form.result}
                 onChange={(e) => setForm({ ...form, result: e.target.value })}
               >
@@ -80,28 +84,33 @@ const ComplianceEdit = () => {
                 <option value="IN_PROGRESS">IN_PROGRESS</option>
                 <option value="PENDING">PENDING</option>
               </select>
+              {errors.result && <div className="invalid-feedback">{errors.result}</div>}
             </div>
             <div className="mb-3">
-              <label className="form-label">Notes</label>
+              <label className="form-label fw-bold small">NOTES</label>
               <textarea
                 maxLength={1000}
-                className="form-control"
+                rows="4"
+                className={`form-control ${errors.notes ? 'is-invalid' : ''}`}
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                style={{ resize: 'none' }}
               />
-              <div className="text-muted small mt-1">{String(form.notes || '').length}/1000</div>
-              {errors.notes && <div className="text-danger small mt-1">{errors.notes}</div>}
+              <div className="d-flex justify-content-between mt-1">
+                <div className="text-muted small">{String(form.notes || '').length}/1000</div>
+                {errors.notes && <div className="text-danger small">{errors.notes}</div>}
+              </div>
             </div>
-            <div className="d-flex justify-content-end">
+            <div className="d-flex justify-content-end gap-2 border-top pt-3">
               <button
                 type="button"
-                className="btn btn-secondary me-2"
+                className="btn btn-outline-secondary px-4"
                 onClick={() => navigate(-1)}
               >
                 Cancel
               </button>
-              <button type="submit" className="btn btn-primary">
-                Update
+              <button type="submit" className="btn btn-primary px-4" disabled={loading}>
+                {loading ? 'Updating...' : 'Update Record'}
               </button>
             </div>
           </form>

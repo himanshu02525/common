@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './DisplayOneRecord.css';
-import { fetchComplianceRecordById } from '../../../redux/complianceOfficerSlice';
-import {EmptyState, Loader,DetailCard,StatusBadge ,TaxDetails } from '../../../core/registry';
+import * as complianceApi from "../../../axios/complianceApi";
+import { 
+  EmptyState, 
+  Loader, 
+  DetailCard, 
+  StatusBadge, 
+  TaxDetails, 
+  SubsidyDetails, 
+  FundingProgramDetails, 
+  CitizenBusinessDetails 
+} from '../../../core/registry';
+
 const DisplayOneRecord = ({ record: propRecord }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -19,60 +29,109 @@ const DisplayOneRecord = ({ record: propRecord }) => {
   const fetchRecord = async (rid) => {
     setLoading(true);
     try {
-      const res = await fetchComplianceRecordById(rid);
-      if (!res || !res.data) {
-        setErrorMsg(`No data returned from API for id=${rid}`);
+      const data = await complianceApi.getById(rid);
+      if (!data) {
+        setErrorMsg(`No data returned for ID: ${rid}`);
         setRecord(null);
       } else {
-        setRecord(res.data);
+        setRecord(data);
         setErrorMsg('');
       }
     } catch (err) {
-      const apiMsg = err?.response?.data?.message || err?.message || 'Unknown error';
+      const apiMsg = err?.response?.data?.message || err?.message || 'Failed to fetch record';
       setErrorMsg(apiMsg);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <Loader/>;
-  if (!record) return <EmptyState   message={errorMsg} />
+  if (loading) return <Loader message="Fetching record details..." />;
+  if (!record && errorMsg) return <EmptyState message={errorMsg} />;
+  if (!record) return null;
+
   return (
-    <div className="record-container">
+    <div className="record-container py-3">
+      <div className="mb-3">
+        <button 
+          className="btn btn-sm btn-outline-secondary" 
+          onClick={() => navigate(-1)}
+        >
+          &larr; Back to List
+        </button>
+      </div>
+
       <DetailCard
         title={`Compliance #${record.complianceId}`}
-        subtitle={`${record.type} • ${record.entityId}`}
+        subtitle={`${record.type} Verification • Entity ${record.entityId}`}
         badge={<StatusBadge type="result" value={record.result} />}
         date={record.createdAt ? new Date(record.createdAt).toLocaleString() : ''}
-       actions={<button className="btn btn-sm btn-primary" onClick={() => navigate(`/compliance/${record.complianceId}/edit`)}>Update</button>}
+        actions={
+          <button
+            className="btn btn-primary px-4"
+            onClick={() => navigate(`/compliance/${record.complianceId}/edit`)}
+          >
+            Update Status
+          </button>
+        }
       >
-        <div className="record-grid">
-          <div className="field"><strong>Reference ID</strong><div>{record.referenceId}</div></div>
-          <div className="field"><strong>Entity ID</strong><div>{record.entityId}</div></div>
-          <div className="field"><strong>Type</strong><div>{record.type}</div></div>
-          <div className="field"><strong>Result</strong><div><StatusBadge type="result" value={record.result} /></div></div>
+        <div className="row g-3">
+          <div className="col-md-4">
+            <div className="p-3 border rounded bg-light">
+              <small className="text-muted d-block text-uppercase fw-bold">Reference ID</small>
+              <span className="fs-5">{record.referenceId}</span>
+            </div>
+          </div>
+          <div className="col-md-4">
+            <div className="p-3 border rounded bg-light">
+              <small className="text-muted d-block text-uppercase fw-bold">Entity ID</small>
+              <span className="fs-5">{record.entityId}</span>
+            </div>
+          </div>
+          <div className="col-md-4">
+            <div className="p-3 border rounded bg-light">
+              <small className="text-muted d-block text-uppercase fw-bold">Type</small>
+              <span className="fs-5">{record.type}</span>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-3">
-          <h6>Notes</h6>
-          <div className="notes-box wrap-text">{record.notes || '—'}</div>
+        <div className="mt-4">
+          <h6 className="fw-bold text-uppercase small text-muted">Auditor Notes</h6>
+          <div className="p-3 border rounded bg-white notes-box wrap-text">
+            {record.notes || <span className="text-muted italic">No notes provided for this record.</span>}
+          </div>
         </div>
 
-        {record.type === 'TAX' && record.taxResponseDTO && (
-          <div className="card-body"><TaxDetails tax={record.taxResponseDTO} /></div>
-        )}
-        {record.type === 'SUBSIDY' && record.subsidyResponse && (
-        <div className="card-body"><SubsidyDetails subsidy={record.subsidyResponse} /></div>
-        )}
-        {record.type === 'FUNDING_PROGRAM' && record.financialProgramResponse && (
-        <div className="card-body"><FundingProgramDetails program={record.financialProgramResponse} /></div>
-        )}
-        {record.citizenBusinessResponseDTO && (
-        <div className="card-body"><CitizenBusinessDetails entity={record.citizenBusinessResponseDTO} /></div>
-        )}
+        {/* Dynamic Detail Sections Based on Type */}
+        <div className="mt-4">
+          {record.type === 'TAX' && record.taxResponseDTO && (
+            <div className="mt-3">
+              <TaxDetails tax={record.taxResponseDTO} />
+            </div>
+          )}
+          
+          {record.type === 'SUBSIDY' && record.subsidyResponse && (
+            <div className="mt-3">
+              <SubsidyDetails subsidy={record.subsidyResponse} />
+            </div>
+          )}
+          
+          {(record.type === 'FUNDING_PROGRAM' || record.type === 'PROGRAM') && record.financialProgramResponse && (
+            <div className="mt-3">
+              <FundingProgramDetails program={record.financialProgramResponse} />
+            </div>
+          )}
+          
+          {record.citizenBusinessResponseDTO && (
+            <div className="mt-4 border-top pt-3">
+              <h6 className="fw-bold mb-3">Entity Information</h6>
+              <CitizenBusinessDetails entity={record.citizenBusinessResponseDTO} />
+            </div>
+          )}
+        </div>
       </DetailCard>
     </div>
   );
+};
 
-}
 export default DisplayOneRecord;

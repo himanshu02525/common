@@ -1,13 +1,11 @@
 import React from "react";
-import { useSelector } from "react-redux";
+// Redux import removed
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid,
 } from "recharts";
 import { StatusCard, Loader, EmptyState, DataUnavailable } from "../../../core/registry";
 
 const COLORS = ["#4e73df", "#1cc88a", "#f6c23e", "#e74a3b", "#36b9cc"];
-
-
 
 const ValueList = ({ title, data }) => {
   if (!data || data.length === 0) return null;
@@ -55,11 +53,12 @@ const CustomBar = ({ data }) => {
   );
 };
 
-const Dashboard = () => {
-  const { analyticsData, isLoading, error } = useSelector((state) => state.reportsAnalytics);
+// Now receiving props from AnalyticsDashboard instead of useSelector
+const Dashboard = ({ analyticsData, isLoading, error }) => {
 
-  if (isLoading) return <Loader />;
-  if (error || !analyticsData) return <EmptyState message={error} />;
+  if (isLoading) return <Loader message="Loading dashboard..." />;
+  if (error) return <EmptyState message={error} />;
+  if (!analyticsData) return <EmptyState message="No data available." />;
 
   const taxStatus = analyticsData?.taxDetails?.status ? [
     { name: "Paid", value: analyticsData.taxDetails.status.paid ?? 0 },
@@ -106,6 +105,7 @@ const Dashboard = () => {
       ) : (
         <DataUnavailable title="Tax Compliance Status" />
       )}
+      
       {taxStats ? (
         <StatusCard
           title="Tax Statistics"
@@ -117,6 +117,7 @@ const Dashboard = () => {
       ) : (
         <DataUnavailable title="Tax Statistics" />
       )}
+
       {programStatus ? (
         <StatusCard
           title="Program Status"

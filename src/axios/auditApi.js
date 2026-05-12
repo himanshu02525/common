@@ -19,8 +19,9 @@ export const create = async (data) => {
 };
 
 export const update = async (id, data) => {
+  console.log("Updating audit with ID:", id, "Data:", data);
   if (!id) throw new Error("ID required");
-  const res = await apiClient.put(`/audit/${id}`, data);
+  const res = await apiClient.patch(`/audit/${id}`, data);
   return res.data;
 };
 
@@ -33,3 +34,14 @@ export const getSummary = async () => {
   const res = await apiClient.get("/audit/summary");
   return res.data;
 };
+
+const auditApi = {
+  getAll,
+  getById,
+  create,
+  update,
+  remove,
+  getSummary
+};
+
+export default auditApi;

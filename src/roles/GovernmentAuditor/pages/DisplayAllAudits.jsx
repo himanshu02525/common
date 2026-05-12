@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   EmptyState,
@@ -9,112 +8,122 @@ import {
   StatusBadge,
   RecordsTable,
 } from "../../../core/registry";
-import { fetchAudits } from "../../../redux/auditSlice";
+import * as auditApi from "../../../axios/auditApi";
 
 const DisplayAllAudits = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { audits, loading, error } = useSelector((state) => state.audit);
-
+  const [audits, setAudits] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filterText, setFilterText] = useState("");
 
+  const fetchAudits = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await auditApi.getAll();
+      setAudits(data || []);
+    } catch (err) {
+      setError("Failed to fetch audits.");
+      console.error("Error fetching audits:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    dispatch(fetchAudits());
-  }, [dispatch]);
+    fetchAudits();
+  }, []);
 
   const displayedRecords = useMemo(() => {
     let filtered = audits || [];
-
     if (filterText.trim()) {
       const s = filterText.toLowerCase();
-
       filtered = filtered.filter((r) =>
-        Object.values(r).some((v) =>
-          String(v || "").toLowerCase().includes(s)
-        )
+        Object.values(r).some((v) => String(v || "").toLowerCase().includes(s))
       );
     }
-
     return filtered;
   }, [audits, filterText]);
 
-  if (loading && audits.length === 0)
-    return <Loader message="Loading audits..." />;
+  // Actions
+  const handleView = (id) => navigate(`/audit/${id}`);
+  const handleEdit = (id) => navigate(`/audit/${id}/edit`);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "—";
+    return new Date(dateString).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  if (loading && audits.length === 0) return <Loader message="Loading audits..." />;
+  if (error) return <EmptyState message={error} />;
 
   return (
-    <div>
-      <div className="d-flex justify-content-end align-items-end mb-3">
-        <RefetchButton onClick={() => dispatch(fetchAudits())} />
+    <div className="container-fluid py-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h4 className="fw-bold text-secondary">Audit Management</h4>
+        <RefetchButton onClick={fetchAudits} />
       </div>
 
-      <SearchBar
-        value={filterText}
-        onChange={(e) => setFilterText(e.target.value)}
-        onClear={() => setFilterText("")}
-        placeholder="Search audit records..."
-      />
-
-      {error && (
-        <EmptyState
-          title="Failed to load audits"
-          message={String(error)}
+      <div className="card shadow-sm border-0 p-3">
+        <SearchBar
+          placeholder="Filter audits..."
+          value={filterText}
+          onChange={(e) => setFilterText(e.target.value)}
         />
-      )}
 
-      {!error && (
         <RecordsTable
-          data={displayedRecords}
           columns={[
-            { label: "ID", key: "auditId", sortable: true },
-            { label: "Officer Id", key: "officerId", sortable: true },
-            { label: "Scope", key: "scope", sortable: true },
+            { key: "auditId", label: "ID", sortable: true },
+            { 
+              key: "scope", 
+              label: "Scope", 
+              sortable: true,
+              render: (v) => <span className="badge bg-light text-dark border">{v}</span>
+            },
             {
-              label: "Status",
               key: "status",
+              label: "Status",
               sortable: true,
-              render: (v) => <StatusBadge value={v} />,
+              render: (v) => <StatusBadge status={v} />,
             },
-            {
-              label: "Created",
-              key: "createdAt",
+            { 
+              key: "createdAt", 
+              label: "Created At", 
               sortable: true,
-              render: (v) =>
-                v ? new Date(v).toLocaleString() : "",
+              render: (v) => formatDate(v) 
             },
             {
-              label: "Findings",
-              key: "findings",
-              render: (v) => (
-                <div className="truncate-cell">{v}</div>
-              ),
-            },
-            {
+              key: "actions",
               label: "Actions",
               render: (_, row) => (
-                <div className="action-td">
-                  <button
-                    className="btn btn-outline-info view-btn"
-                    onClick={() =>
-                      navigate(`/audit/${row.auditId}`)
-                    }
+                <div className="d-flex justify-content-center gap-2">
+                  <button 
+                    className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
+                    onClick={() => handleView(row.auditId)}
                   >
-                    View
+                    <i className="bi bi-eye"></i> View
                   </button>
-                  <button
-                    className="btn btn-sm btn-primary ms-2 edit-btn"
-                    onClick={() =>
-                      navigate(`/audit/${row.auditId}/edit`)
-                    }
+                  <button 
+                    className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                    onClick={() => handleEdit(row.auditId)}
                   >
-                    Edit
+                    <i className="bi bi-pencil"></i> Edit
                   </button>
                 </div>
-              ),
-            },
+              )
+            }
           ]}
+          data={displayedRecords}
         />
-      )}
+      </div>
     </div>
   );
 };

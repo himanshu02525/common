@@ -1,12 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { fetchAuditById } from '../../../redux/auditSlice';
+import * as auditApi from "../../../axios/auditApi";
 import { Loader, EmptyState, DisplayOneAudit } from '../../../core/registry';
 
 const AuditDetails = () => {
     const { id } = useParams();
-    const dispatch = useDispatch();
 
     const [audit, setAudit] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -15,18 +13,22 @@ const AuditDetails = () => {
     const fetchAudit = useCallback(async (aid) => {
         setLoading(true);
         try {
-            const resultAction = await dispatch(fetchAuditById(aid));
-            const data = resultAction.payload;
-
-            setAudit(data);
-            setErrorMsg('');
+            const data = await auditApi.getById(aid);
+            if (data) {
+                console.log(data);
+                
+                setAudit(data);
+                setErrorMsg('');
+            } else {
+                setErrorMsg('Audit record not found.');
+            }
         } catch (err) {
             const apiMsg = err?.response?.data?.message || err?.message || 'Unknown error';
             setErrorMsg(apiMsg);
         } finally {
             setLoading(false);
         }
-    }, [dispatch]);
+    }, []);
 
     useEffect(() => {
         if (id) fetchAudit(id);

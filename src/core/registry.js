@@ -21,11 +21,6 @@ export { default as CharacterAllow } from '../components/common/compliance/Chara
 export { default as BootstrapSwitch } from '../components/ui/BootstrapSwitch';
 export { default as CachedIcon } from '@mui/icons-material/Cached';
 
-// --- Global Hooks ---
-export { default as useCompliance } from '../hooks/complianceaudits/useCompliance';
-export { default as useAudits } from '../hooks/complianceaudits/useAudits';
-export { default as useCharacterLimit } from '../hooks/complianceaudits/useCharacterLimit';
-
 // --- Compliance Officer Module ---
 export { default as ComplianceDashboard } from '../roles/ComplianceOfficer/pages/ComplianceDashboard';
 export { default as ComplianceCreate } from '../roles/ComplianceOfficer/pages/ComplianceCreate';
@@ -46,29 +41,25 @@ export { default as AuditDetails } from '../roles/GovernmentAuditor/pages/AuditD
 export { default as DisplayAllAudits } from '../roles/GovernmentAuditor/pages/DisplayAllAudits';
 export { default as DisplayOneAudit } from '../roles/GovernmentAuditor/components/DisplayOneAudit';
 export { default as AuditSummary } from '../roles/GovernmentAuditor/components/AuditSummary';
-
-// --- Reports & Analytics: Pages ---
 export { default as ReportsDashboard } from '../roles/reportsAnalytics/pages/ReportsDashboard';
-export { default as ReportDetails } from '../roles/reportsAnalytics/pages/ReportDetails';
-export { default as CreateReport } from '../roles/reportsAnalytics/pages/CreateReport';
-export { default as AnalyticsDashboard } from '../roles/reportsAnalytics/pages/AnalyticsDashboard';
-export { default as ReportVisualizer } from '../roles/reportsAnalytics/pages/ReportVisualizer';
-
-// --- Reports & Analytics: Internal Components & Charts ---
-export { default as MetricsGrid } from '../roles/reportsAnalytics/components/common/MetricsGrid';
-export { default as GenericMetricsCard } from '../roles/reportsAnalytics/components/common/GenericMetricsCard';
-export { default as ReportAnalytics } from '../roles/reportsAnalytics/components/ReportAnalytics';
-export { default as Dashboard } from '../roles/reportsAnalytics/components/Dashboard';
-export { default as AnalyticsOverview } from '../roles/reportsAnalytics/components/AnalyticsOverview';
-export { default as StatusCard } from '../components/common/report/StatusCard';
-
-// --- Report Management (CRUD & Display) ---
-export { default as DisplayAllReports } from '../roles/reportsAnalytics/components/report/DisplayAllReports';
-export { default as ReportCard } from '../roles/reportsAnalytics/components/report/ReportCard';
 export { default as ReportsList } from '../roles/reportsAnalytics/components/report/ReportsList';
-export { default as ReportViewer } from '../roles/reportsAnalytics/components/report/ReportViewer';
+export { default as ReportCard } from '../roles/reportsAnalytics/components/report/ReportCard';
+export { default as CreateReport } from '../roles/reportsAnalytics/pages/CreateReport';
 export { default as CreateReportForm } from '../roles/reportsAnalytics/components/generate/CreateReportForm';
 export { default as ScopeSelector } from '../roles/reportsAnalytics/components/generate/ScopeSelector';
+export { default as AnalyticsDashboard } from '../roles/reportsAnalytics/pages/AnalyticsDashboard';
+export { default as ReportDetails } from '../roles/reportsAnalytics/pages/ReportDetails';
+export { default as ReportViewer } from '../roles/reportsAnalytics/components/report/ReportViewer';
 export { default as TaxMetricsCard } from '../roles/reportsAnalytics/components/report/TaxMetricsCard';
 export { default as ProgramMetricsCard } from '../roles/reportsAnalytics/components/report/ProgramMetricsCard';
 export { default as SubsidyMetricsCard } from '../roles/reportsAnalytics/components/report/SubsidyMetricsCard';
+export { default as GenericMetricsCard } from '../roles/reportsAnalytics/components/common/GenericMetricsCard';
+export { default as MetricsGrid } from '../roles/reportsAnalytics/components/common/MetricsGrid';
+export { default as Dashboard } from '../roles/reportsAnalytics/components/Dashboard';
+export { default as StatusCard } from '../components/common/report/StatusCard';
+
+
+// api imports
+export { default as complianceApi } from '../axios/complianceApi';
+export { default as auditApi } from '../axios/auditApi';
+export { default as reportApi } from '../axios/reportsAnalyticsApi';

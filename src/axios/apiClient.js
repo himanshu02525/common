@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: "http://localhost:8086",
+  baseURL: "http://localhost:8087",
 });
 
 // Add interceptor

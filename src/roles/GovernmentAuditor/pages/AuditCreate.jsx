@@ -1,69 +1,71 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { createAudit } from "../../../redux/auditSlice";
-import { CharacterAllow ,useCharacterLimit} from "../../../core/registry";
+import { CharacterAllow } from "../../../core/registry";
+// Import your service helper
+import * as auditApi from "../../../axios/auditApi";
 
 const AuditCreate = () => {
-  const notesManager = useCharacterLimit("", 1000);
-
   const [form, setForm] = useState({
     officerId: "5",
     scope: "PROGRAM",
   });
 
+  const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const { loading } = useSelector((state) => state.audit);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const err = {};
 
-    if (!form.officerId || String(form.officerId).trim() === "")
+    if (!form.officerId || String(form.officerId).trim() === "") {
       err.officerId = "Officer ID is required";
+    }
 
-    if (notesManager.value.length > 1000)
+    if (notes.length > 1000) {
       err.findings = "Findings max 1000 chars";
+    }
 
     setErrors(err);
 
-    if (Object.keys(err).length) return;
+    if (Object.keys(err).length > 0) return;
 
     try {
-      await dispatch(
-        createAudit({
-          officerId: Number(form.officerId),
-          scope: form.scope,
-          findings: notesManager.value,
-        })
-      ).unwrap();
+      setLoading(true);
+      
+      // Use auditApi.create helper instead of axios.post
+      await auditApi.create({
+        officerId: Number(form.officerId),
+        scope: form.scope,
+        findings: notes,
+      });
 
       toast.success("Audit record created successfully");
       navigate("/audit/list");
-    } catch (err) {
-      toast.error(err || "Failed to create audit");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to create audit");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="container py-3">
-      <div className="card">
+      <div className="card shadow-sm">
         <div className="card-body">
-          <h5>Create Audit</h5>
+          <h5 className="mb-4">Create Audit</h5>
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label className="form-label">
-                Officer ID <span className="text-danger">*</span>
+              <label className="form-label fw-bold small">
+                OFFICER ID <span className="text-danger">*</span>
               </label>
               <input
-                className="form-control"
+                className={`form-control ${errors.officerId ? 'is-invalid' : ''}`}
                 inputMode="numeric"
                 pattern="\d*"
                 value={form.officerId}
@@ -72,12 +74,12 @@ const AuditCreate = () => {
                 }
               />
               {errors.officerId && (
-                <small className="text-danger">{errors.officerId}</small>
+                <div className="invalid-feedback">{errors.officerId}</div>
               )}
             </div>
 
             <div className="mb-3">
-              <label className="form-label">Scope</label>
+              <label className="form-label fw-bold small">SCOPE</label>
               <select
                 className="form-select"
                 value={form.scope}
@@ -91,31 +93,51 @@ const AuditCreate = () => {
             </div>
 
             <div className="mb-3">
-              <label className="form-label">Findings</label>
+              <label className="form-label fw-bold small">FINDINGS</label>
               <textarea
-                className="form-control"
-                rows="3"
+                className={`form-control ${errors.findings ? 'is-invalid' : ''}`}
+                rows="4"
                 maxLength={1000}
                 style={{ resize: "none" }}
-                value={notesManager.value}
-                onChange={notesManager.handleChange}
+                placeholder="Enter audit findings..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
               />
-              <CharacterAllow
-                count={notesManager.count}
-                limit={notesManager.limit}
-              />
+              <div className="mt-1">
+                <CharacterAllow
+                  count={notes.length}
+                  limit={1000}
+                />
+              </div>
               {errors.findings && (
-                <small className="text-danger">{errors.findings}</small>
+                <div className="invalid-feedback">{errors.findings}</div>
               )}
             </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Create Audit"}
-            </button>
+            <div className="d-flex gap-2 mt-4">
+              <button
+                type="submit"
+                className="btn btn-primary px-4"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Saving...
+                  </>
+                ) : (
+                  "Create Audit"
+                )}
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-outline-secondary" 
+                onClick={() => navigate("/audit/list")}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+            </div>
           </form>
         </div>
       </div>

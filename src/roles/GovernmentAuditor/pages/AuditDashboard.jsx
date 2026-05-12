@@ -1,15 +1,26 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchAudits } from '../../../redux/auditSlice';
+import React, { useEffect, useState } from 'react';
+import * as auditApi from "../../../axios/auditApi";
 import { Loader, RefetchButton, AuditSummary } from '../../../core/registry';
 
 const AuditDashboard = () => {
-  const dispatch = useDispatch();
-  const { audits, loading } = useSelector((state) => state.audit);
+  const [audits, setAudits] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAudits = async () => {
+    setLoading(true);
+    try {
+      const data = await auditApi.getAll();
+      setAudits(data || []);
+    } catch (error) {
+      console.error('Error fetching audits:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    dispatch(fetchAudits());
-  }, [dispatch]);
+    fetchAudits();
+  }, []);
 
   if (loading) return <Loader message="Loading audit..." />;
 
@@ -17,10 +28,10 @@ const AuditDashboard = () => {
     <div className="container-fluid py-3">
       <div className="d-flex align-items-center mb-3">
         <h3 className="me-auto mb-0">Audit</h3>
-        <RefetchButton onClick={() => dispatch(fetchAudits())} />
+        <RefetchButton onClick={fetchAudits} />
       </div>
 
-      <AuditSummary />
+      <AuditSummary audits={audits} />
     </div>
   );
 };

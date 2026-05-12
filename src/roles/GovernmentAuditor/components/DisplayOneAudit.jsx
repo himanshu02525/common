@@ -5,7 +5,6 @@ import { StatusBadge, DetailCard, RefetchButton } from '../../../core/registry';
 
 const DisplayOneAudit = ({ audit, onRefresh }) => {
   const navigate = useNavigate();
-console.log(audit);
 
   return (
     <div className="audit-container">
