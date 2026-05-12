@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Globe, MapPin, Phone, Mail } from 'lucide-react';
 import './Footer.css';
 
-export const Footer = () => {
+export const Footer = ({ sidebarOpen = true }) => {
   const currentYear = new Date().getFullYear();
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('en-IN'));
 
@@ -16,7 +16,7 @@ export const Footer = () => {
 
   return (
     <motion.footer
-      className="footer"
+      className={`footer ${!sidebarOpen ? 'sidebar-collapsed' : ''}`}
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4 }}

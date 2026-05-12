@@ -1,20 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { Sidebar } from './Sidebar';
 import './Layout.css';
 
 export const Layout = ({ children }) => {
-  return (
-    <div className="layout">
-      <Header />
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-      <div className="layout-body">
+  const handleSidebarToggle = (isOpen) => {
+    setSidebarOpen(isOpen);
+  };
+
+  return (
+    <div className={`layout ${!sidebarOpen ? 'sidebar-collapsed' : ''}`}>
+      <Header />
+      <Sidebar onToggle={handleSidebarToggle} initialState={true} />
+      <div className={`layout-body ${!sidebarOpen ? 'sidebar-collapsed' : ''}`}>
         <main className="main-content">
-          {children}
+          <Outlet />
         </main>
       </div>
 
-      <Footer />
+      <Footer sidebarOpen={sidebarOpen} />
     </div>
   );
 };

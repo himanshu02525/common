@@ -34,12 +34,9 @@
   }
 }
 
-/* Handle sidebar collapse/expand */
+/* Handle sidebar collapse/expand - Updated */
+.layout.sidebar-collapsed .main-content,
 .layout-body.sidebar-collapsed .main-content {
-  margin-left: 80px;
-}
-
-.layout.sidebar-collapsed .footer {
   margin-left: 80px;
 }
 
@@ -55,6 +52,11 @@
     margin-top: 80px;
     padding: 1.5rem 1rem;
     min-height: auto;
+  }
+
+  .layout.sidebar-collapsed .main-content,
+  .layout-body.sidebar-collapsed .main-content {
+    margin-left: 0;
   }
 }
 
