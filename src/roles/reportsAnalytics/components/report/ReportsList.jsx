@@ -3,8 +3,7 @@ import { EmptyState, ReportCard } from '../../../../core/registry';
 
 export default function ReportsList({ reports = [], emptyMessage = 'No reports available' }) {
   const [idOrder, setIdOrder] = useState('desc'); 
-  const [scopeFilter, setScopeFilter] = useState('ALL'); // Changed default to 'ALL'
-
+  const [scopeFilter, setScopeFilter] = useState('ALL'); 
   const scopeCycle = ['PROGRAM', 'SUBSIDY', 'TAX'];
 
   const handleScopeCycle = () => {
@@ -79,7 +78,7 @@ export default function ReportsList({ reports = [], emptyMessage = 'No reports a
 
         {scopeFilter === 'ALL' && (
           <div className="badge bg-primary rounded-pill px-3 py-2">
-            Showing All Scopes
+            Showing All Reports
           </div>
         )}
       </div>

@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { EmptyState, Loader, ReportsList, reportApi } from '../../../../core/registry';
 
-/**
- * DisplayAllReports Component
- * Refactored to use reportApi from the registry for consistent API handling.
- */
+
 function DisplayAllReports() {
   const [allReports, setAllReports] = useState([]);
   const [isLoadingReports, setIsLoadingReports] = useState(true);
@@ -18,12 +15,8 @@ function DisplayAllReports() {
       setLoadError(null);
       
       try {
-        // Utilizing the refactored reportApi method
         const responseData = await reportApi.fetchAll();
-        
         if (!mounted) return;
-
-        // Normalizing response data to ensure an array is passed to ReportsList
         const normalizedList = Array.isArray(responseData)
           ? responseData
           : responseData?.reports ?? responseData?.items ?? [];
