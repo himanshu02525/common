@@ -7,7 +7,6 @@ import './styles/global.css';
 import './App.css';
 
 import { 
-  AnalyticsOverview,
   Layout, 
   ComplianceDashboard, 
   ComplianceCreate, 
@@ -17,13 +16,11 @@ import {
   AuditDashboard,
   AuditCreate,
   DisplayAllAudits,
-  DisplayOneAudit,
   AuditEdit,
   ReportDetails,
-  ScopeReports,
   CreateReport,
   ReportsDashboard,
-  AnalyticsDashboard
+  AnalyticsDashboard,AuditDetails
 } from './core/registry'; 
 function App() {
   return (
@@ -40,13 +37,12 @@ function App() {
           <Route path="/audit" element={<AuditDashboard />} />
           <Route path="/audit/create" element={<AuditCreate />} />
           <Route path="/audit/list" element={<DisplayAllAudits />} />
-          <Route path="/audit/:id" element={<DisplayOneAudit />} />
+          <Route path="/audit/:id" element={<AuditDetails />} />
           <Route path="/audit/:id/edit" element={<AuditEdit />} />
           
           <Route path="/reports" element={<ReportsDashboard />} />
           <Route path="/reports/create" element={<CreateReport />} />
           <Route path="/reports/analytics" element={<AnalyticsDashboard />} />
-          <Route path="/reports/scope/:scope" element={<ScopeReports />} />
           <Route path="/reports/:id" element={<ReportDetails />} />
         </Routes>
       </Layout>
