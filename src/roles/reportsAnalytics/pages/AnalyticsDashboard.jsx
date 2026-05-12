@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  EmptyState, 
-  RefetchButton, 
-  Loader, 
-  reportApi ,
+import {
+  EmptyState,
+  RefetchButton,
+  Loader,
+  reportApi,
   Dashboard
 } from '../../../core/registry';
 
@@ -32,10 +32,10 @@ const AnalyticsDashboard = () => {
 
   return (
     <div>
-      <Dashboard 
-        analyticsData={analyticsData} 
-        isLoading={isLoading} 
-        error={error} 
+      <Dashboard
+        analyticsData={analyticsData}
+        isLoading={isLoading}
+        error={error}
       />
     </div>
   );

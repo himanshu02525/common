@@ -1,141 +1,159 @@
 import React from 'react';
 
 const GenericMetricsCard = ({ data, title = "Metrics Overview", generatedAt }) => {
-    if (!data) return null;
+    const getSafeData = (input) => {
+        if (!input) return null;
+        if (typeof input === "object") return input;
+
+        let parsed = input;
+
+        for (let i = 0; i < 5; i++) {
+            try {
+                if (typeof parsed !== "string") return parsed;
+
+                parsed = parsed.trim();
+
+                if (parsed.startsWith('"') && parsed.endsWith('"')) {
+                    parsed = parsed.slice(1, -1);
+                }
+
+                parsed = parsed.replace(/\\"/g, '"');
+
+                parsed = JSON.parse(parsed);
+            } catch (e) {
+                break;
+            }
+        }
+
+        if (typeof parsed === "object") return parsed;
+
+        console.error("Final Parse Failed:", input);
+        return { Error: "Invalid report data format" };
+    };
+
+    const metricsData = getSafeData(data);
+    if (!metricsData) return null;
+
     const formatLabel = (str) =>
         str.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
 
     const formatValue = (key, value) => {
-        if (typeof value === 'object' && value !== null) {
-            return JSON.stringify(value);
-        }
-
-        if (typeof value !== 'number') return value;
+        if (typeof value === 'boolean') return value ? "Yes" : "No";
+        if (value === null || value === undefined) return "N/A";
+        if (typeof value !== 'number') return String(value);
 
         const k = key.toLowerCase();
-
-        if (k.includes('rate') || k.includes('percentage')) return `${value.toFixed(1)}%`;
-
-
-
+        if (k.includes('rate') || k.includes('percentage') || k.includes('percent')) {
+            return `${value.toFixed(1)}%`;
+        }
+        if (k.includes('amount') || k.includes('revenue') || k.includes('budget') || k.includes('tax')) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+        }
         return value.toLocaleString();
     };
 
     const MetricTile = ({ label, value }) => (
         <div style={{
             padding: '12px 16px',
-            backgroundColor: '#f9fafb',
+            backgroundColor: '#f8fafc',
             borderRadius: '8px',
-            border: '1px solid #f1f5f9',
-            transition: 'transform 0.2s ease',
+            border: '1px solid #e2e8f0',
         }}>
             <span style={{
                 display: 'block',
-                fontSize: '11px',
+                fontSize: '10px',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
                 color: '#64748b',
-                fontWeight: '600',
+                fontWeight: '700',
                 marginBottom: '4px'
             }}>
                 {formatLabel(label)}
             </span>
-            <span style={{
-                fontSize: '1.25rem',
-                fontWeight: '700',
-                color: '#0f172a',
-                letterSpacing: '-0.02em'
-            }}>
+            <span style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b' }}>
                 {formatValue(label, value)}
             </span>
         </div>
     );
 
-    const sections = Object.entries(data).filter(([_, v]) => typeof v === 'object' && v !== null);
-    const flatItems = Object.entries(data).filter(([_, v]) => typeof v !== 'object');
+    const renderRecursive = (inputData, level = 0) => {
+        if (!inputData) return null;
+
+        if (Array.isArray(inputData)) {
+            return (
+                <div>
+                    {inputData.map((item, index) => (
+                        <div key={index}>{renderRecursive(item, level + 1)}</div>
+                    ))}
+                </div>
+            );
+        }
+
+        if (typeof inputData !== 'object') return null;
+
+        const entries = Object.entries(inputData);
+        const flatItems = entries.filter(([_, v]) => typeof v !== 'object' || v === null);
+        const nestedItems = entries.filter(([_, v]) => typeof v === 'object' && v !== null);
+
+        return (
+            <div style={{ width: '100%' }}>
+                {flatItems.length > 0 && (
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                        gap: '10px',
+                        marginBottom: '20px'
+                    }}>
+                        {flatItems.map(([k, v]) => (
+                            <MetricTile key={k} label={k} value={v} />
+                        ))}
+                    </div>
+                )}
+
+                {nestedItems.map(([key, value]) => (
+                    <div key={key + level} style={{
+                        marginTop: '15px',
+                        marginBottom: '15px',
+                        padding: '10px',
+                        backgroundColor: level === 0 ? '#ffffff' : 'transparent',
+                        borderRadius: '8px',
+                        border: level === 0 ? '1px solid #f1f5f9' : 'none'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+                            <span style={{
+                                fontSize: level === 0 ? '0.85rem' : '0.75rem',
+                                fontWeight: '800',
+                                color: level === 0 ? '#2563eb' : '#64748b',
+                                textTransform: 'uppercase',
+                                marginRight: '10px'
+                            }}>
+                                {formatLabel(key)}
+                            </span>
+                            <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }} />
+                        </div>
+
+                        <div style={{ paddingLeft: '12px', borderLeft: '2px solid #e2e8f0' }}>
+                            {renderRecursive(value, level + 1)}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    };
 
     return (
         <div style={{
             backgroundColor: '#ffffff',
-            borderRadius: '16px',
+            borderRadius: '12px',
             padding: '24px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #e2e8f0',
-            fontFamily: '"Inter", -apple-system, sans-serif',
-            color: '#1e293b'
+            border: '1px solid #cbd5e1',
+            fontFamily: 'system-ui, sans-serif'
         }}>
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                marginBottom: '28px',
-                borderBottom: '1px solid #f1f5f9',
-                paddingBottom: '16px'
-            }}>
-                <div>
-                    <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#0f172a' }}>
-                        {title}
-                    </h2>
-                    <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#64748b' }}>
-                        Analytics Snapshot
-                    </p>
-                </div>
-                {generatedAt && (
-                    <div style={{ textAlign: 'right' }}>
-                        <div style={{
-                            fontSize: '10px',
-                            fontWeight: '700',
-                            color: '#94a3b8',
-                            textTransform: 'uppercase'
-                        }}>
-
-                        </div>
-                        <div style={{ fontSize: '0.8rem', color: '#475569', fontWeight: '500' }}>
-                            Generated On : {new Date(generatedAt).toLocaleDateString()} at {new Date(generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </div>
-                    </div>
-                )}
+            <div style={{ marginBottom: '20px', borderBottom: '2px solid #f1f5f9', paddingBottom: '10px' }}>
+                <h2 style={{ margin: 0, fontSize: '1.4rem', color: '#0f172a' }}>{title}</h2>
+                {generatedAt && <small style={{ color: '#64748b' }}>Ref: {generatedAt}</small>}
             </div>
-
-            {flatItems.length > 0 && (
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-                    gap: '12px',
-                    marginBottom: '32px'
-                }}>
-                    {flatItems.map(([key, val]) => (
-                        <MetricTile key={key} label={key} value={val} />
-                    ))}
-                </div>
-            )}
-
-            {sections.map(([key, content]) => (
-                <div key={key} style={{ marginBottom: '24px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-                        <span style={{
-                            fontSize: '0.75rem',
-                            fontWeight: '700',
-                            color: '#334155',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
-                            marginRight: '12px'
-                        }}>
-                            {formatLabel(key)}
-                        </span>
-                        <div style={{ flex: 1, height: '1px', backgroundColor: '#f1f5f9' }}></div>
-                    </div>
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-                        gap: '12px'
-                    }}>
-                        {Object.entries(content).map(([subKey, subVal]) => (
-                            <MetricTile key={subKey} label={subKey} value={subVal} />
-                        ))}
-                    </div>
-                </div>
-            ))}
+            {renderRecursive(metricsData)}
         </div>
     );
 };

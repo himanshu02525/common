@@ -1,11 +1,11 @@
-import apiClient from "./apiClient";
+import axiosInstance from "./axiosInstance";
 
 /**
  * Fetches analytics data.
  * Endpoint: GET /reports/analytics
  */
 export const getAnalytics = async () => {
-  const response = await apiClient.get("/reports/analytics");
+  const response = await axiosInstance.get("/reports/analytics");
   return response.data;
 };
 
@@ -15,7 +15,7 @@ export const getAnalytics = async () => {
  */
 export const fetchReportById = async (id) => {
   if (!id) throw new Error("Report ID is required");
-  const response = await apiClient.get(`/reports/${id}`);
+  const response = await axiosInstance.get(`/reports/${id}`);
   return response.data;
 };
 
@@ -24,7 +24,7 @@ export const fetchReportById = async (id) => {
  * Endpoint: GET /reports
  */
 export const fetchAll = async () => {
-  const response = await apiClient.get("/reports");
+  const response = await axiosInstance.get("/reports");
   return response.data;
 };
 
@@ -40,8 +40,8 @@ export const generateReport = async ({ scope, id = null, year = null, reportName
   if (year) queryParams.append('year', year);
   if (reportName) queryParams.append('reportName', reportName);
 
-
-  const response = await apiClient.post(baseUrl, null, {
+    
+  const response = await axiosInstance.post(baseUrl, null, {
     params: { scope, id, year, reportName }
   });
   return response.data;
@@ -49,7 +49,7 @@ export const generateReport = async ({ scope, id = null, year = null, reportName
 };
 
 export const getSummaryReports = async () => {
-  const response = await apiClient.get("/reports/summary");
+  const response = await axiosInstance.get("/reports/summary");
   return response.data;
 };
 

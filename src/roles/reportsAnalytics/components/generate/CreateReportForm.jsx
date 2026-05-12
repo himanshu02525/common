@@ -53,10 +53,9 @@ export default function CreateReportForm({ onSuccess }) {
       let year = (isToggled || selectedScope === 'TAX') ? (reportYear || null) : null;
       let id = (isToggled || selectedScope === 'PROGRAM') ? (programId || null) : null;
 
-      // Pass as a single object to match the updated reportApi.js
       const data = await reportApi.generateReport({
         scope,
-        id, // This matches @RequestParam Long id in Java
+        id, 
         year,
         reportName,
       });

@@ -1,12 +1,11 @@
-// apiClient.js
 import axios from "axios";
 
-const apiClient = axios.create({
+const axiosInstance = axios.create({
   baseURL: "http://localhost:8087",
 });
 
 // Add interceptor
-apiClient.interceptors.request.use((config) => {
+axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("jwttoken"); 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -17,4 +16,4 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-export default apiClient;
+export default axiosInstance;

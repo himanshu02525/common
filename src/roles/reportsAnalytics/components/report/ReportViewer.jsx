@@ -10,7 +10,7 @@ export default function ReportViewer({ scope, metrics = {} }) {
     TAX: () => <TaxMetricsCard data={reportMetrics.taxMetrics || reportMetrics} generatedAt={reportMetrics.generatedAt} />,
     PROGRAM: () => <ProgramMetricsCard data={reportMetrics.programMetrics || reportMetrics} generatedAt={reportMetrics.generatedAt} />,
     SUBSIDY: () => <SubsidyMetricsCard data={reportMetrics.subsidyMetrics || reportMetrics} generatedAt={reportMetrics.generatedAt} />,
-    OVERALL: () => <GenericMetricsCard card={reportMetrics} />
+    OVERALL: () => <GenericMetricsCard card={reportMetrics} generatedAt={reportMetrics.generatedAt}/>
   };
 
   const Renderer = scopeRendererMap[reportScope?.toUpperCase()] || (() => <div className="text-muted">Unknown scope</div>);
